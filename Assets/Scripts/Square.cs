@@ -51,7 +51,7 @@ public class Square : MonoBehaviour
     public void AttachSquares(Square target) // Venen a mi
     {
         Debug.Log(target.transform.name);
-        Vector3 aux = transform.position - target.gameObject.transform.position;
+        Vector3 aux = transform.position - target.gameObject.transform.position;//canviar nom de aux (prova per pull request)
         //Debug.Log(aux);
         if (Mathf.Abs(aux.x) < Mathf.Abs(aux.y))
         {
