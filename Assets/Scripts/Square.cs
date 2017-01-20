@@ -53,10 +53,16 @@ public class Square : MonoBehaviour
 
     public void AttachSquare(Square target) // Venen a mi
     {
+<<<<<<< HEAD
         target.gameObject.GetComponent<BoxCollider2D>().enabled = false;
         GetComponent<BoxCollider2D>().enabled = false;
         Debug.Log("BEGIN " + target.gameObject.name + "   " + target.gameObject.transform.position);
         Vector3 aux = transform.position - target.gameObject.transform.position;
+=======
+        Debug.Log(target.transform.name);
+        Vector3 aux = transform.position - target.gameObject.transform.position;//canviar nom de aux (prova per pull request)
+        //Debug.Log(aux);
+>>>>>>> 08f3b2fd161c8d21b4596e8959398041225a0c73
         if (Mathf.Abs(aux.x) < Mathf.Abs(aux.y))
         {
             target.gameObject.transform.position += new Vector3(aux.x, 0, 0);
