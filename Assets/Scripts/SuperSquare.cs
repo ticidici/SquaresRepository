@@ -121,10 +121,10 @@ public class SuperSquare : MonoBehaviour {
 
         Vector2[] vertices = null;
 
-        if (_childs.Count <= 2)
+        if (_childs.Count <=2)
         {
             Debug.Log("Entra");
-            vertices = GetVerticesFromChildCollider();
+            vertices = GetVerticesFromChildCollider();//children
         }
         else
         {
@@ -144,12 +144,17 @@ public class SuperSquare : MonoBehaviour {
         verticesList.AddRange(vertices);        
         List<Vector2> toRemove = new List<Vector2>();
 
-        for(int i = 0; i < verticesList.Count; i++)
+        _pivot = Compute2DPolygonCentroid(vertices, vertices.Length); // Ojo
+
+        for (int i = 0; i < verticesList.Count; i++)
         {
-            for(int j = i+1; j < verticesList.Count; j++)
+            if (_childs.Count == 4 && Vector3.Magnitude(new Vector2(verticesList[i].x, verticesList[i].y) - _pivot)<1)
+                toRemove.Add(verticesList[i]);
+
+            for (int j = i+1; j < verticesList.Count; j++)
             {
                 if (Vector3.Magnitude(verticesList[i] - verticesList[j]) < 0.2)
-                    toRemove.Add(verticesList[j]);                
+                    toRemove.Add(verticesList[j]);        
             }
         }
 
@@ -159,7 +164,7 @@ public class SuperSquare : MonoBehaviour {
         }
 
         Vector2[] aux2 = verticesList.ToArray();
-        _pivot = Compute2DPolygonCentroid(aux2, aux2.Length); // Ojo
+        
 
         /*Debug.Log("END:");
         foreach (Vector2 item in aux2)
@@ -172,6 +177,12 @@ public class SuperSquare : MonoBehaviour {
         _collider.offset = transform.position * (-1);
         _collider.SetPath(0, aux2);
         Debug.Log(_collider.GetPath(0).Length);
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(new Vector3(_pivot.x, _pivot.y), .05f);
     }
 
     private int Compare(Vector2 v1, Vector2 v2)

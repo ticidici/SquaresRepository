@@ -7,7 +7,9 @@ public class Square : MonoBehaviour
     public AttachPoint _AttachPointPrefab;
 
     private Vector2[] _vertices;
-    private AttachPoint[] _attachPoints;    
+    private AttachPoint[] _attachPoints;
+
+    
 
     void Awake()
     {
@@ -51,6 +53,8 @@ public class Square : MonoBehaviour
 
     public void AttachSquare(Square target) // Venen a mi
     {
+        target.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        GetComponent<BoxCollider2D>().enabled = false;
         Debug.Log("BEGIN " + target.gameObject.name + "   " + target.gameObject.transform.position);
         Vector3 aux = transform.position - target.gameObject.transform.position;
         if (Mathf.Abs(aux.x) < Mathf.Abs(aux.y))
@@ -72,6 +76,9 @@ public class Square : MonoBehaviour
         Debug.Log("END " + target.gameObject.name + "   " + target.gameObject.transform.position);
         target.UpdateVertices();
         UpdateVertices();
+
+        target.gameObject.GetComponent<BoxCollider2D>().enabled = true;
+        GetComponent<BoxCollider2D>().enabled = true;
     }
 
     public float GetDistance(Square target)
