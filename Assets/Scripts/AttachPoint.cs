@@ -2,7 +2,26 @@
 using System.Collections;
 
 public class AttachPoint : MonoBehaviour
-{   
+{
+    private Square _square;
+
+    public Square Square
+    {
+        get
+        {
+            return _square;
+        }
+        set
+        {
+            _square = value;
+        }
+    }
+
+    void Awake()
+    {
+        _square = null;
+    }
+
     void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
