@@ -9,8 +9,9 @@ public class SuperSquare : MonoBehaviour {
     public LayerMask _layer;
     public bool _isDominant = false;
 
-    private List<Square> _childs;
+    private List<Square> _childs;//"childs" no existeix, voldràs dir "children"
     private PolygonCollider2D _collider;
+    private Dictionary<Square, Vector2> _inputsFromchildren;
 
     private Vector2 _pivot;
 
@@ -18,6 +19,7 @@ public class SuperSquare : MonoBehaviour {
     {
         _collider = GetComponent<PolygonCollider2D>();
         _childs = new List<Square>();
+        _inputsFromchildren = new Dictionary<Square, Vector2>();
 
         //_pivot = transform.position;
 
@@ -35,6 +37,7 @@ public class SuperSquare : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        Move();
         if (Input.GetKeyDown(KeyCode.O) && _isDominant)
         {
             SearchSuperSquareToAttach();
@@ -44,9 +47,12 @@ public class SuperSquare : MonoBehaviour {
     private void UpdateChilds() {
         foreach (Transform child in transform)
         {
-            Square aux = child.GetComponent<Square>();            
-            if(aux != null)
-                _childs.Add(aux);            
+            Square aux = child.GetComponent<Square>();
+            if (aux != null)
+            {
+                _childs.Add(aux);
+                _inputsFromchildren.Add(aux, Vector2.zero);
+            }        
         }
     }
 
@@ -123,7 +129,7 @@ public class SuperSquare : MonoBehaviour {
 
         if (_childs.Count <=2)
         {
-            Debug.Log("Entra");
+            //Debug.Log("Entra");
             vertices = GetVerticesFromChildCollider();//children
         }
         else
@@ -133,7 +139,7 @@ public class SuperSquare : MonoBehaviour {
             _childs[_childs.Count - 1].GetVertices().CopyTo(vertices, _collider.GetPath(0).Length);
         }
 
-        Debug.Log(_collider.GetPath(0).Length);
+        //Debug.Log(_collider.GetPath(0).Length);
         /*Debug.Log("BEGIN");
         foreach (Vector2 item in vertices)
         {
@@ -176,7 +182,7 @@ public class SuperSquare : MonoBehaviour {
         
         _collider.offset = transform.position * (-1);
         _collider.SetPath(0, aux2);
-        Debug.Log(_collider.GetPath(0).Length);
+        //Debug.Log(_collider.GetPath(0).Length);
     }
 
     void OnDrawGizmos()
@@ -228,12 +234,14 @@ public class SuperSquare : MonoBehaviour {
     {
         target.gameObject.transform.SetParent(transform);
         _childs.Add(target);
+        _inputsFromchildren.Add(target, Vector2.zero);
     }
 
     public void DeleteSquare(Square target)
     {
         target.gameObject.transform.parent = null;
         _childs.Remove(target);
+        _inputsFromchildren.Remove(target);
     }
 
     public bool IsEmpty()
@@ -282,5 +290,32 @@ public class SuperSquare : MonoBehaviour {
         centroid.y /= (6.0f * signedArea);
 
         return centroid;
+    }
+
+    public void MagnetInput(Square requestingSquare)
+    {
+        //diferents casos si hi ha més d'un fill o no
+        Debug.Log("magnet input");//de moment
+    }
+
+    public void MovementInput(Square requestingSquare,Vector2 movementVector)
+    {
+        _inputsFromchildren[requestingSquare] = movementVector;
+        Debug.Log(movementVector.ToString("F4")); 
+    }
+
+    private void Move()//Once per frame
+    {
+        //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
+
+        int numberOfChildren = _childs.Count;
+        
+        Vector2 AddedVelocity = Vector2.zero;
+        foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
+        {
+            AddedVelocity += childInputPair.Value;
+        }
+
+        transform.Translate(AddedVelocity/numberOfChildren);//Revisar
     }
 }
