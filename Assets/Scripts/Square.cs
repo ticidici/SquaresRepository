@@ -7,7 +7,6 @@ public class Square : MonoBehaviour
     public float _length = 1f;
     public AttachPoint _AttachPointPrefab;
 
-    private List<Vector2> _vertices;
     private AttachPoint[] _attachPoints;
 
     private GameObject _parent;
@@ -16,15 +15,9 @@ public class Square : MonoBehaviour
     {
         // ATTACH POINTS
         _attachPoints = new AttachPoint[4];
-        _vertices = new List<Vector2>();
         _parent = transform.parent.gameObject;
 
         SetAttachPoints();
-        UpdateVertices();
-    }
-
-    void Start()
-    {        
     }
 
     private void SetAttachPoints()
@@ -40,58 +33,52 @@ public class Square : MonoBehaviour
         }
     }
 
-    private void UpdateVertices()
+    public void Detach() // Poder hi ha algun bug per no desactivar els colliders? De moment no hi ha res sospitos
     {
-        float halfLength = _length / 2;
-
-        _vertices.Add(new Vector2(transform.position.x - halfLength, transform.position.y + halfLength));     // Top-Left
-        _vertices.Add(new Vector2(transform.position.x + halfLength, transform.position.y + halfLength));     // Top-Right
-        _vertices.Add(new Vector2(transform.position.x + halfLength, transform.position.y - halfLength));     // Bottom-Right
-        _vertices.Add(new Vector2(transform.position.x - halfLength, transform.position.y - halfLength));     // Bottom-Left
-    }
-
-    public Vector2[] GetVertices()
-    {
-        return _vertices.ToArray();
-    }
-
-    public void Detach()
-    {
-        //_parent.gameObject.SetActive(true);
-        //GetComponent<BoxCollider2D>().enabled = false;
+        foreach (AttachPoint item in _attachPoints)
+        {
+            item.isBusy = false;
+        }
         transform.parent = gameObject.transform.root;
-        Debug.Log(_parent.name);
-        _parent.SendMessage("Reset");
-        
-
+        _parent.SendMessage("Reset",this);
     }
 
-    public void AttachTo(Square target) // Tenir en compte les rotacions?
+    // Retorna el AttachPoint mes proper al point donat
+    private AttachPoint GetAttachPointClosestTo(Vector3 point)
+    {
+        AttachPoint closest = _attachPoints[0];
+        float minimumDistance = Vector3.Distance(point,closest.transform.position);
+
+        for (int i = 1; i < _attachPoints.Length; i++)
+        {
+            float currentDistance = Vector3.Distance(point, _attachPoints[i].transform.position);
+            if (minimumDistance > currentDistance)
+            {
+                minimumDistance = currentDistance;
+                closest = _attachPoints[i];
+            }
+        }
+        return closest;
+    }
+
+    // Ha de retornar si el attach s'ha pogut fer
+    public void AttachTo(Square target) // TODO: Passar-ho a net
     {
         target.gameObject.GetComponent<BoxCollider2D>().enabled = false;
         GetComponent<BoxCollider2D>().enabled = false;
+        
+        transform.rotation = target.transform.parent.rotation;
+        Vector3 distanceBetweenSquares = target.gameObject.transform.position - transform.position;
+        Vector3 dir = distanceBetweenSquares.normalized;
 
-        Vector3 distanceBetweenSquares = target.gameObject.transform.position - transform.position;     
+        Vector3 initPoint = transform.position + dir * _length;
+        Vector3 finalPoint = target.gameObject.transform.position - dir * _length;
 
-        if (Mathf.Abs(distanceBetweenSquares.x) < Mathf.Abs(distanceBetweenSquares.y))
-        {
-            transform.position += new Vector3(distanceBetweenSquares.x, 0, 0);
-            if (distanceBetweenSquares.y < 0)
-                transform.position += new Vector3(0, _length + distanceBetweenSquares.y, 0); // TOP
-            else
-                transform.position += new Vector3(0, -_length + distanceBetweenSquares.y, 0); // BOTTOM
-        }
-        else
-        {
-            transform.position += new Vector3(0, distanceBetweenSquares.y, 0);
-            if (distanceBetweenSquares.x < 0)
-                transform.position += new Vector3(_length + distanceBetweenSquares.x, 0, 0);  // RIGHT
-            else
-                transform.position += new Vector3(-_length + distanceBetweenSquares.x, 0, 0); // LEFT
-        }
-
-        target.UpdateVertices();
-        UpdateVertices();
+        AttachPoint a = GetAttachPointClosestTo(initPoint);
+        a.isBusy = true;
+        AttachPoint b = target.GetAttachPointClosestTo(finalPoint);
+        b.isBusy = true;
+        transform.position = b.transform.position;
 
         target.gameObject.GetComponent<BoxCollider2D>().enabled = true;
         GetComponent<BoxCollider2D>().enabled = true;
@@ -99,7 +86,7 @@ public class Square : MonoBehaviour
 
     public float GetDistance(Square target)
     {
-        return Vector3.Magnitude(target.transform.position - transform.position);
+        return Vector3.Distance(target.transform.position, transform.position);        
     }
 
     void OnCollisionEnter2D(Collision2D coll)
