@@ -166,6 +166,10 @@ Prefab:
       propertyPath: m_AngularDrag
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 1000013611324396, guid: d2847f8002ff6d442856a4386dd62359, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d2847f8002ff6d442856a4386dd62359, type: 2}
   m_IsPrefabParent: 0
@@ -294,6 +298,53 @@ Transform:
   - {fileID: 832186660}
   m_Father: {fileID: 1105830832}
   m_RootOrder: 5
+--- !u!1 &230691488
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 230691490}
+  - 114: {fileID: 230691489}
+  m_Layer: 0
+  m_Name: TestManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &230691489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 230691488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45e48eefedda806448a750d1424349a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _SuperSquarePrefab: {fileID: 114000013267779452, guid: d2847f8002ff6d442856a4386dd62359,
+    type: 2}
+  _colors:
+  - {r: 0.9490197, g: 0.37254903, b: 0.36078432, a: 1}
+  - {r: 0.9568628, g: 0.63529414, b: 0.3803922, a: 1}
+  - {r: 0.14117648, g: 0.48235297, b: 0.627451, a: 1}
+  - {r: 1, g: 0.87843144, b: 0.40000004, a: 1}
+--- !u!4 &230691490
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 230691488}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
 --- !u!1001 &273039183
 Prefab:
   m_ObjectHideFlags: 0
@@ -369,6 +420,10 @@ Prefab:
         type: 2}
       propertyPath: m_AngularDrag
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1000013611324396, guid: d2847f8002ff6d442856a4386dd62359, type: 2}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d2847f8002ff6d442856a4386dd62359, type: 2}
@@ -570,7 +625,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.9490197, g: 0.37254903, b: 0.36078432, a: 1}
+  m_BackGroundColor: {r: 0.11764707, g: 0.12941177, b: 0.14117648, a: 1}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -987,6 +1042,10 @@ Prefab:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1000013611324396, guid: d2847f8002ff6d442856a4386dd62359, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d2847f8002ff6d442856a4386dd62359, type: 2}
   m_IsPrefabParent: 0
@@ -1074,6 +1133,10 @@ Prefab:
     - target: {fileID: 114000012238055308, guid: d2847f8002ff6d442856a4386dd62359,
         type: 2}
       propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1000013611324396, guid: d2847f8002ff6d442856a4386dd62359, type: 2}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1321,7 +1384,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1335,7 +1398,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 10
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0

@@ -5,6 +5,7 @@ using System.Collections;
 public class ControllerPlayer : MonoBehaviour {
 
     public float _speed = 12f;
+    public int id;
 
     private Rigidbody2D _Rigidbody;
     private float _MovementInputValueX;
@@ -17,6 +18,7 @@ public class ControllerPlayer : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+        //Input.GetAxis();
         _MovementInputValueX = Input.GetAxis("Horizontal");
         _MovementInputValueY = Input.GetAxis("Vertical");
     }

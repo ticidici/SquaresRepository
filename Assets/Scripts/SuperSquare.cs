@@ -6,22 +6,40 @@ using System.Collections.Generic;
 // Faltaria saber quina forma te --> attachPoints
 
 public class SuperSquare : MonoBehaviour {
-    
-    public bool _isDominant = false;            // Nomes per el test indica que es el que es controlat pel jugador.
+        
     public int numChilds = 0;                   // Nomes per el test, indica quants fills tenim
+    public int _idPlayer;                       // Test Input
+
+    public int IdPlayer                         // Test Input
+    {
+        get
+        {
+            return _idPlayer;
+        }
+        set
+        {
+            _idPlayer = value;
+        }
+    }
 
     [SerializeField]
     private LayerMask _layerMaskToSearch;       // Investigar mes pq no calgi posarla manualment ja que el this ja te la layer ficada
     private List<Square> _children;             // Llista de fills
-    private Square _firstChild;                 // Referencia al primer fill amb el començem.
+    private ControllerPlayer _controller;
 
     #region Unity Methods
     void Awake()
     {
         _children = new List<Square>();
-        
+        _controller = GetComponent<ControllerPlayer>();
+
         // Set la llista de fills
-        UpdateChilds();        
+        UpdateChilds();
+    }
+
+    void Start()
+    {
+        _controller.id = _idPlayer;
     }
 
     void Update()
@@ -30,11 +48,11 @@ public class SuperSquare : MonoBehaviour {
         numChilds = _children.Count;
 
         // Attach others squares
-        if ((Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Joystick1Button2)) && _isDominant)        
+        if (tag.Equals("Player1") && (Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Joystick1Button2)))        
             SearchSuperSquareToAttach();
         
         // Detach all children
-        if ((Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Joystick1Button1)) && _isDominant)
+        if (tag.Equals("Player1") &&  (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Joystick1Button1)))
             DetachAllChildren(); // Test
     }
     #endregion
@@ -64,11 +82,18 @@ public class SuperSquare : MonoBehaviour {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, 2, _layerMaskToSearch);
         foreach (Collider2D hit in colliders)
         {
+            Debug.Log(hit.name);
             Rigidbody2D rb = hit.GetComponent<Rigidbody2D>();
             
             if (rb != null)
                 rb.AddExplosionForce(power,explosionPos,radius);
         }
+    }
+
+    // Set color
+    public void SetColor(Color color)
+    {
+        _children[0].Color = color;
     }
     #endregion
 
@@ -82,8 +107,6 @@ public class SuperSquare : MonoBehaviour {
             if(aux != null)
                 _children.Add(aux);            
         }
-
-        _firstChild = _children[0];
     }
     
     private void SearchSuperSquareToAttach() // TODO: Canviar nom
@@ -156,7 +179,7 @@ public class SuperSquare : MonoBehaviour {
     }
     #endregion
 
-    #region Private Methods
+    #region Public Methods
     // Add target to the children List and set him this as a parent.
     public void AddSquare(Square target)
     {

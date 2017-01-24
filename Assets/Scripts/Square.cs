@@ -8,8 +8,17 @@ public class Square : MonoBehaviour
     public AttachPoint _AttachPointPrefab;
 
     private AttachPoint[] _attachPoints;
-
     private GameObject _parent;
+
+    private Color _color; // test
+    public Color Color
+    {
+        set
+        {
+            _color = value;
+            ResetColor();
+        }
+    }
 
     void Awake()
     {
@@ -41,6 +50,7 @@ public class Square : MonoBehaviour
         }
         transform.parent = gameObject.transform.root;
         _parent.SendMessage("Reset",this);
+        ResetColor();
     }
 
     // Retorna el AttachPoint mes proper al point donat
@@ -66,7 +76,10 @@ public class Square : MonoBehaviour
     {
         target.gameObject.GetComponent<BoxCollider2D>().enabled = false;
         GetComponent<BoxCollider2D>().enabled = false;
-        
+
+        ResetColor();
+        target.ResetColor();
+
         transform.rotation = target.transform.parent.rotation;
         Vector3 distanceBetweenSquares = target.gameObject.transform.position - transform.position;
         Vector3 dir = distanceBetweenSquares.normalized;
@@ -91,7 +104,7 @@ public class Square : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D coll)
     {
-        GetComponent<Renderer>().material.color = Color.red;
+        GetComponent<Renderer>().material.color = Color.white;
         //GetComponent<SpriteRenderer>().color = Color.red;   Quan te sprite
     }
     void OnCollisionExit2D(Collision2D collisionInfo)
@@ -102,6 +115,6 @@ public class Square : MonoBehaviour
 
     private void ResetColor()
     {
-        GetComponent<Renderer>().material.color = Color.white;
+        GetComponent<Renderer>().material.color = _color;
     }
 }
