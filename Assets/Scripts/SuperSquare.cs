@@ -3,30 +3,27 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-// Faltaria saber quina forma te --> attachPoints
-
 public class SuperSquare : MonoBehaviour {
-        
-    public int numChilds = 0;                   // Nomes per el test, indica quants fills tenim
-    public int _idPlayer;                       // Test Input
-
-    private Dictionary<Square, Vector2> _inputsFromchildren;
+       
+    private int _id;                            // Test Input
 
     [SerializeField]
     private LayerMask _layerMaskToSearch;       // Investigar mes pq no calgi posarla manualment ja que el this ja te la layer ficada
-    private List<Square> _children;             // Llista de fills
-    //private ControllerPlayer _controller;
+    private List<Square> _children;             // Llista de fills 
+
+    // INPUT
+    private Dictionary<Square, Vector2> _inputsFromchildren;
 
     // Getter/Setter per Test
-    public int IdPlayer                         // Test Input
+    public int Id                               // Test Input
     {
         get
         {
-            return _idPlayer;
+            return _id;
         }
         set
         {
-            _idPlayer = value;
+            _id = value;
         }
     }
 
@@ -34,114 +31,48 @@ public class SuperSquare : MonoBehaviour {
     void Awake()
     {
         _children = new List<Square>();
-        //_controller = GetComponent<ControllerPlayer>();
         _inputsFromchildren = new Dictionary<Square, Vector2>();
-
-        // Set la llista de fills
-        UpdateChilds();
     }
 
     void Start()
     {
-        //_controller.id = _idPlayer;
+        UpdateChild();
     }
 
     void Update()
     {
-        // Actualitzacio del nombre de fills
-        numChilds = _children.Count;
-
-        
         // Attach others squares
-        if (tag.Equals("Player1") && (Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Joystick1Button2)))        
+        /*if (tag.Equals("Player1") && (Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Joystick1Button2)))        
             SearchSuperSquareToAttach();
         
         // Detach all children
         if (tag.Equals("Player1") &&  (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Joystick1Button1)))
             DetachAllChildren(); // Test
-            
+            */
+    }
+
+    void FixedUpdate()
+    {
         Move();
-    }
-    #endregion
-
-    #region Just for test1
-    // Nomes per fer el test
-    private void DetachAllChildren() // Prova de dettach de tots el fills
-    {
-        if (_children.Count < 2)          // Si no te almenys 2 fills. Hauria d'alertar
-            return;
-
-        foreach (Square item in _children.ToArray())  // Per cada fill fem el dettach i el borrem de la llista
-        {
-            item.Detach();
-            _children.Remove(item);
-        }
-
-        Explosion();
-    }
-
-    // Nomes per fer el test
-    private void Explosion()   // Test
-    {
-        float radius = 5.0f;
-        float power = 1000.0f;
-        Vector3 explosionPos = transform.position;
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, 2, _layerMaskToSearch);
-        foreach (Collider2D hit in colliders)
-        {
-            Debug.Log(hit.name);
-            Rigidbody2D rb = hit.GetComponent<Rigidbody2D>();
-            
-            if (rb != null)
-                rb.AddExplosionForce(power,explosionPos,radius);
-        }
-    }
-
-    // Set color
-    public void SetColor(Color color)
-    {
-        _children[0].Color = color;
     }
     #endregion
 
     #region Private Methods
 
-    private void Move()//Once per frame
-    {
-        //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
+    // Actualitzem el primer fill que tenim.
+    // Es garantitza que sempre hi haura nomes un fill d'inici.
+    private void UpdateChild() {
 
-        int numberOfChildren = _children.Count;
-
-        if (numberOfChildren < 1) { return; }
-
-      //  Vector2 movement = Vector2.right * _MovementInputValueX * _speed * Time.deltaTime;
-        //movement += Vector2.up * _MovementInputValueY * _speed * Time.deltaTime;
-
-        
-
-        Vector2 movement = Vector2.zero;
-        foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
-        {
-            movement += childInputPair.Value;
-        }
-
-        GetComponent<Rigidbody2D>().AddForceAtPosition(movement, transform.position + new Vector3(0, 0.1f, 0), ForceMode2D.Impulse);
-
-        //transform.Translate(AddedVelocity / numberOfChildren);//Revisar
-    }
-
-    // Actualitzem la llista de fills i guardem la referencia del primer fill.
-    private void UpdateChilds() {
-        foreach (Transform child in transform)
-        {
-            Square aux = child.GetComponent<Square>();
-            if (aux != null) {
-                _children.Add(aux);
-                _inputsFromchildren.Add(aux, Vector2.zero);
-            }          
-        }
+        transform.GetChild(0).GetComponent<SquareController>()._playerNumber = _id+1;
+        Square currentChild = transform.GetChild(0).GetComponent<Square>();
+        currentChild.Id = _id;
+        currentChild.tag = tag;
+        _children.Add(currentChild);
+        _inputsFromchildren.Add(currentChild, Vector2.zero);        
     }
     
+    // Cerca SuperSquares a un radi 3. Fa detach i attach a target.
+    // El attach es presuposa sempre viable.
     private void SearchSuperSquareToAttach() // TODO: Canviar nom
     {
         Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, 3, _layerMaskToSearch);
@@ -202,30 +133,56 @@ public class SuperSquare : MonoBehaviour {
         return sol;
     }
 
+    // Posiblement canviar el nom, no es un reset reset
     // Pre: el child no te cap pare
     // Pos: Posicionem el SuperSquare en la posicio del fill original i l'emparentem.
     private void Reset(Square child) // Es cridat per el Square quan es queda orfan.
     {
-        transform.position = child.transform.position; // Actualitzem la posicio del super
+        transform.position = child.transform.position;  // Actualitzem la posicio del super
+        transform.rotation = child.transform.rotation;  // Actualitzem la rotacio del super
         AddSquare(child);
         GetComponent<BoxCollider2D>().enabled = true;
+    }
+
+    // Detach de tots els fills fent una explosio en la posicio de requestingSquare
+    private void DetachAllChildren(Vector3 requestingSquarePosition)                // TODO: Millora, detach de tots menys el nostre!
+    {
+        // No cal fer Detach si nomes tenim 1 fill.
+        if (_children.Count < 2)
+            return;
+
+        foreach (Square item in _children.ToArray())  // Per cada fill fem el dettach i el borrem de la llista
+        {
+            item.Detach();
+            _children.Remove(item);
+            //_inputsFromchildren.Remove(item);
+        }
+        Explosion(requestingSquarePosition);
     }
     #endregion
 
     #region Public Methods
+    // No cal que siguin publiques, es podrien passar a privades
+
     // Add target to the children List and set him this as a parent.
     public void AddSquare(Square target)
     {
         target.gameObject.transform.parent = transform;
         _children.Add(target);
-        _inputsFromchildren.Add(target, Vector2.zero);
+        //_inputsFromchildren.Add(target, Vector2.zero);  // Implicit alhora de posarlo com a child
     }
 
     public void DeleteSquare(Square target)
     {
         target.gameObject.transform.parent = null;        
         _children.Remove(target);
-        _inputsFromchildren.Remove(target);
+        //_inputsFromchildren.Remove(target);           // Implicit alhora de posarlo com a child
+
+        if (_children.Count == 0)
+        {
+            _children.Clear();
+            GetComponent<BoxCollider2D>().enabled = false;
+        }
     }
 
     public bool IsEmpty()
@@ -239,18 +196,77 @@ public class SuperSquare : MonoBehaviour {
 
         if (_children.Count < 2)
         {
+            Debug.Log("Attach");
             SearchSuperSquareToAttach();
         }
         else
         {
-            //Detach
+            Debug.Log("Detach");
+            DetachAllChildren(requestingSquare.transform.position);
         }
+    }
+    #endregion
+
+    #region Input Related
+    /*
+    // Versio Nico. La molongui
+    private void Move()//Once per frame
+    {
+        //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
+
+        int numberOfChildren = _children.Count;
+
+        if (numberOfChildren < 1) { return; }
+
+        Vector2 movement = Vector2.zero;
+        foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
+        {
+            movement += childInputPair.Value;
+        }
+
+        GetComponent<Rigidbody2D>().AddForceAtPosition(movement / numberOfChildren, transform.position + new Vector3(0, 0.1f, 0), ForceMode2D.Impulse);
+    }*/
+
+        
+    // Versio Tomas amb velocitat i translate. Es curios xd        
+    private void Move()//Once per frame 
+    {
+        //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
+
+        int numberOfChildren = _children.Count;
+
+        if (numberOfChildren < 1) { return; }
+
+        Vector2 AddedVelocity = Vector2.zero;
+        foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
+        {
+            AddedVelocity += childInputPair.Value;
+        }
+
+        transform.Translate(AddedVelocity / numberOfChildren);//Revisar
     }
 
     public void MovementInput(Square requestingSquare, Vector2 movementVector)
     {
         _inputsFromchildren[requestingSquare] = movementVector;
         //Debug.Log(movementVector.ToString("F4"));//F4 -> expressió amb 4 decimals
+    }
+    #endregion
+
+    #region utils
+    // Nomes per fer el test
+    private void Explosion(Vector3 explosionPos)   // Test
+    {
+        float radius = 5.0f;
+        float power = 1000.0f;
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, 2, _layerMaskToSearch);
+        foreach (Collider2D hit in colliders)
+        {
+            Rigidbody2D rb = hit.GetComponent<Rigidbody2D>();
+
+            if (rb != null)
+                rb.AddExplosionForce(power, explosionPos, radius);
+        }
     }
     #endregion
 }

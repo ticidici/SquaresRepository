@@ -4,31 +4,26 @@ using System.Collections;
 public class TestManager : MonoBehaviour {
 
     public SuperSquare _SuperSquarePrefab;
-    public Color[] _colors;    
+    public Color[] _colors;
+
+    public static TestManager instance = null;
 
     void Awake()
     {
         Cursor.visible = false;
-        int i = 0;
-        Debug.Log(Input.GetJoystickNames().Length);
-       // foreach (var player in Input.GetJoystickNames())
-      //  {
-           // Debug.Log(player);
-            SuperSquare aux = Instantiate(_SuperSquarePrefab, new Vector2(Random.Range(-6,6), Random.Range(-3.5f, 3.5f)), Quaternion.identity) as SuperSquare;
-            aux.name = "P1";
-            aux.IdPlayer = 0;
-            aux.SetColor(_colors[0]);
-            aux.transform.parent = GameObject.Find("Test1").transform;
-     //   }
 
-        for (i = 1; i < 4; i++)
+        if (instance == null)
+            instance = this;
+        else if (instance != this)
+            Destroy(gameObject);
+
+        for (int i = 0; i < 4; i++)
         {
-            aux = Instantiate(_SuperSquarePrefab, new Vector2(Random.Range(-6, 6), Random.Range(-3.5f, 3.5f)), Quaternion.identity) as SuperSquare;
-            aux.IdPlayer = i;
-            aux.SetColor(_colors[i]);
-            aux.GetComponent<ControllerPlayer>().enabled = false;            
+            SuperSquare aux = Instantiate(_SuperSquarePrefab, new Vector2(Random.Range(-6, 6), Random.Range(-3.5f, 3.5f)), Quaternion.identity) as SuperSquare;
+            aux.Id = i;
+            //aux.GetComponent<ControllerPlayer>().enabled = false;            
             int auxTag = i + 1;
-            aux.name = "P" + auxTag;
+            aux.name = "Player " + auxTag;
             aux.tag = "Player"+ auxTag;
             aux.transform.parent = GameObject.Find("Test1").transform;
         }
@@ -41,6 +36,9 @@ public class TestManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+	    if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
 	}
 }
