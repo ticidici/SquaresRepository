@@ -10,6 +10,14 @@ public class SuperSquare : MonoBehaviour {
     public int numChilds = 0;                   // Nomes per el test, indica quants fills tenim
     public int _idPlayer;                       // Test Input
 
+    private Dictionary<Square, Vector2> _inputsFromchildren;
+
+    [SerializeField]
+    private LayerMask _layerMaskToSearch;       // Investigar mes pq no calgi posarla manualment ja que el this ja te la layer ficada
+    private List<Square> _children;             // Llista de fills
+    //private ControllerPlayer _controller;
+
+    // Getter/Setter per Test
     public int IdPlayer                         // Test Input
     {
         get
@@ -22,16 +30,12 @@ public class SuperSquare : MonoBehaviour {
         }
     }
 
-    [SerializeField]
-    private LayerMask _layerMaskToSearch;       // Investigar mes pq no calgi posarla manualment ja que el this ja te la layer ficada
-    private List<Square> _children;             // Llista de fills
-    private ControllerPlayer _controller;
-
     #region Unity Methods
     void Awake()
     {
         _children = new List<Square>();
-        _controller = GetComponent<ControllerPlayer>();
+        //_controller = GetComponent<ControllerPlayer>();
+        _inputsFromchildren = new Dictionary<Square, Vector2>();
 
         // Set la llista de fills
         UpdateChilds();
@@ -39,7 +43,7 @@ public class SuperSquare : MonoBehaviour {
 
     void Start()
     {
-        _controller.id = _idPlayer;
+        //_controller.id = _idPlayer;
     }
 
     void Update()
@@ -47,6 +51,7 @@ public class SuperSquare : MonoBehaviour {
         // Actualitzacio del nombre de fills
         numChilds = _children.Count;
 
+        
         // Attach others squares
         if (tag.Equals("Player1") && (Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Joystick1Button2)))        
             SearchSuperSquareToAttach();
@@ -54,6 +59,8 @@ public class SuperSquare : MonoBehaviour {
         // Detach all children
         if (tag.Equals("Player1") &&  (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Joystick1Button1)))
             DetachAllChildren(); // Test
+            
+        Move();
     }
     #endregion
 
@@ -99,13 +106,39 @@ public class SuperSquare : MonoBehaviour {
 
     #region Private Methods
 
+    private void Move()//Once per frame
+    {
+        //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
+
+        int numberOfChildren = _children.Count;
+
+        if (numberOfChildren < 1) { return; }
+
+      //  Vector2 movement = Vector2.right * _MovementInputValueX * _speed * Time.deltaTime;
+        //movement += Vector2.up * _MovementInputValueY * _speed * Time.deltaTime;
+
+        
+
+        Vector2 movement = Vector2.zero;
+        foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
+        {
+            movement += childInputPair.Value;
+        }
+
+        GetComponent<Rigidbody2D>().AddForceAtPosition(movement, transform.position + new Vector3(0, 0.1f, 0), ForceMode2D.Impulse);
+
+        //transform.Translate(AddedVelocity / numberOfChildren);//Revisar
+    }
+
     // Actualitzem la llista de fills i guardem la referencia del primer fill.
     private void UpdateChilds() {
         foreach (Transform child in transform)
         {
-            Square aux = child.GetComponent<Square>();            
-            if(aux != null)
-                _children.Add(aux);            
+            Square aux = child.GetComponent<Square>();
+            if (aux != null) {
+                _children.Add(aux);
+                _inputsFromchildren.Add(aux, Vector2.zero);
+            }          
         }
     }
     
@@ -185,23 +218,39 @@ public class SuperSquare : MonoBehaviour {
     {
         target.gameObject.transform.parent = transform;
         _children.Add(target);
+        _inputsFromchildren.Add(target, Vector2.zero);
     }
 
     public void DeleteSquare(Square target)
     {
-        target.gameObject.transform.parent = null;
+        target.gameObject.transform.parent = null;        
         _children.Remove(target);
-
-        if (_children.Count == 0)
-        {
-            _children.Clear();            
-            GetComponent<BoxCollider2D>().enabled = false;
-        }
+        _inputsFromchildren.Remove(target);
     }
 
     public bool IsEmpty()
     {
         return _children.Count == 0;
+    }
+
+    public void MagnetInput(Square requestingSquare)
+    {
+        //Debug.Log("magnet input");
+
+        if (_children.Count < 2)
+        {
+            SearchSuperSquareToAttach();
+        }
+        else
+        {
+            //Detach
+        }
+    }
+
+    public void MovementInput(Square requestingSquare, Vector2 movementVector)
+    {
+        _inputsFromchildren[requestingSquare] = movementVector;
+        //Debug.Log(movementVector.ToString("F4"));//F4 -> expressió amb 4 decimals
     }
     #endregion
 }

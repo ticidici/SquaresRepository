@@ -6,9 +6,14 @@ public class Square : MonoBehaviour
 {
     public float _length = 1f;
     public AttachPoint _AttachPointPrefab;
+    public float _xSpeed = 7.1f;
+    public float _ySpeed = 3.8f;
+    public float _magnetWaitTime = 1.5f;
 
     private AttachPoint[] _attachPoints;
+
     private GameObject _parent;
+    private bool _isMagnetEnabled = true;
 
     private Color _color; // test
     public Color Color
@@ -104,17 +109,50 @@ public class Square : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D coll)
     {
-        GetComponent<Renderer>().material.color = Color.white;
+        //GetComponent<Renderer>().material.color = Color.white;
         //GetComponent<SpriteRenderer>().color = Color.red;   Quan te sprite
     }
     void OnCollisionExit2D(Collision2D collisionInfo)
     {
-        ResetColor();
+       // ResetColor();
         //GetComponent<SpriteRenderer>().color = Color.white; Quan te sprite
     }
 
     private void ResetColor()
     {
         GetComponent<Renderer>().material.color = _color;
+    }
+
+    public void Move(float x, float y)
+    {
+        Vector2 velocityVector = new Vector2(x, y);
+        velocityVector.Normalize();
+        velocityVector.x *= Time.deltaTime * _xSpeed;
+        velocityVector.y *= Time.deltaTime * _ySpeed;
+        //Debug.Log(""+velocityVector.x + "  " + velocityVector.y);
+        GetComponentInParent<SuperSquare>().MovementInput(this, velocityVector);//Canviar la manera de pillar referencia
+    }
+
+    public void UseMagnet()
+    {
+        if (_isMagnetEnabled)
+        {
+            GetComponentInParent<SuperSquare>().MagnetInput(this);//Canviar la manera de pillar referencia
+            StartTimer();
+        }
+    }
+
+    private void StartTimer()
+    {
+        _isMagnetEnabled = false;
+        Debug.Log("Magnet disabled");
+        StartCoroutine(WaitActiveTime());
+    }
+
+    private IEnumerator WaitActiveTime()
+    {
+        yield return new WaitForSeconds(_magnetWaitTime);
+        _isMagnetEnabled = true;
+        Debug.Log("Magnet enabled");
     }
 }
