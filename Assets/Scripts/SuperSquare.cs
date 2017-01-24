@@ -83,8 +83,8 @@ public class SuperSquare : MonoBehaviour {
             {
                 SuperSquare target = item.GetComponent<SuperSquare>();
 
-                while(!target.IsEmpty()) {
-                    // Search the childs most nearby. Until target does not have anyone left.
+                while (!target.IsEmpty()) {
+                    // Search the child most nearby.
                     Square[] closestPair = GetClosestPairOfSquares(target);
                     
                     // Set free the target square
@@ -101,6 +101,8 @@ public class SuperSquare : MonoBehaviour {
     }
 
     // Retornem el parell de Squares amb menor distancia amb target
+    // Index 0: es qui els square del supersquare que vol fer attach
+    // Index 1: es l'altre square a que li faran attach
     private Square[] GetClosestPairOfSquares(SuperSquare target) // TODO: Millorar
     {        
         float min = 0;
@@ -162,27 +164,22 @@ public class SuperSquare : MonoBehaviour {
     #endregion
 
     #region Public Methods
-    // No cal que siguin publiques, es podrien passar a privades
 
     // Add target to the children List and set him this as a parent.
     public void AddSquare(Square target)
     {
         target.gameObject.transform.parent = transform;
         _children.Add(target);
-        //_inputsFromchildren.Add(target, Vector2.zero);  // Implicit alhora de posarlo com a child
+        //_inputsFromchildren.Add(target, Vector2.zero);    // Implicit alhora de posarlo com a child
     }
 
     public void DeleteSquare(Square target)
-    {
-        target.gameObject.transform.parent = null;        
+    {       
         _children.Remove(target);
-        //_inputsFromchildren.Remove(target);           // Implicit alhora de posarlo com a child
+        //_inputsFromchildren.Remove(target);               // Implicit alhora de posarlo com a child
 
         if (_children.Count == 0)
-        {
-            _children.Clear();
-            GetComponent<BoxCollider2D>().enabled = false;
-        }
+            GetComponent<BoxCollider2D>().enabled = false;        
     }
 
     public bool IsEmpty()
@@ -226,8 +223,7 @@ public class SuperSquare : MonoBehaviour {
 
         GetComponent<Rigidbody2D>().AddForceAtPosition(movement / numberOfChildren, transform.position + new Vector3(0, 0.1f, 0), ForceMode2D.Impulse);
     }*/
-
-        
+            
     // Versio Tomas amb velocitat i translate. Es curios xd        
     private void Move()//Once per frame 
     {

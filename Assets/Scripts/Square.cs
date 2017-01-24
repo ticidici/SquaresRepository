@@ -5,19 +5,18 @@ using System.Collections.Generic;
 [RequireComponent(typeof(SquareController))]
 public class Square : MonoBehaviour
 {
-    public float _length = 1f;
     public AttachPoint _AttachPointPrefab;
+    public float _length = 1f;    
     public float _xSpeed = 7.1f;
     public float _ySpeed = 3.8f;
     public float _magnetWaitTime = 1.5f;
 
     private AttachPoint[] _attachPoints;
-
     private GameObject _firstParent;
     private bool _isMagnetEnabled = true;
     private int _id;
 
-    public int Id                         // Test Input
+    public int Id
     {
         set
         {
@@ -27,25 +26,25 @@ public class Square : MonoBehaviour
 
     #region Unity Methods
     void Awake()
-    {
-        // ATTACH POINTS
+    {        
         _attachPoints = new AttachPoint[4];
-        _firstParent = transform.parent.gameObject;
-
-        SetAttachPoints();        
+        _firstParent = transform.parent.gameObject;        
     }
 
     void Start()
     {
+        SetAttachPoints();
         ResetColor();
     }
 
-    void OnCollisionEnter2D(Collision2D coll)
+    // Al fer colisio amb un altre collider, canviem el color a blanc
+    void OnCollisionEnter2D()
     {
         GetComponent<Renderer>().material.color = Color.white;
     }
 
-    void OnCollisionExit2D(Collision2D collisionInfo)
+    // Al sortir d'una colisio, canviem al color original.
+    void OnCollisionExit2D()
     {
         ResetColor();
     }
@@ -53,6 +52,7 @@ public class Square : MonoBehaviour
 
     #region Private Methods
 
+    // Fem el calcul dels attach points i els fiquem com a fills per despres guardar-los a _attachPoints
     private void SetAttachPoints()
     {
         _attachPoints[0] = Instantiate(_AttachPointPrefab, new Vector2(transform.position.x - _length, transform.position.y), Quaternion.identity) as AttachPoint;  // Left
@@ -84,11 +84,13 @@ public class Square : MonoBehaviour
         return closest;
     }
 
+    // Canviem el color al que correspont per _id
     private void ResetColor()
     {
         GetComponent<Renderer>().material.color = TestManager.instance._colors[_id];
     }
 
+    // Cooldown del magnet
     private void StartTimer()
     {
         _isMagnetEnabled = false;
