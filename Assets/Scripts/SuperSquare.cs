@@ -38,10 +38,10 @@ public class SuperSquare : MonoBehaviour {
     void Update()
     {
         Move();
-        if (Input.GetKeyDown(KeyCode.O) && _isDominant)
+       /* if (Input.GetKeyDown(KeyCode.O) && _isDominant)
         {
             SearchSuperSquareToAttach();
-        }
+        }*/
     }
 
     private void UpdateChilds() {
@@ -294,14 +294,22 @@ public class SuperSquare : MonoBehaviour {
 
     public void MagnetInput(Square requestingSquare)
     {
-        //diferents casos si hi ha més d'un fill o no
-        Debug.Log("magnet input");//de moment
+        //Debug.Log("magnet input");
+
+        if (_childs.Count < 2)
+        {
+            SearchSuperSquareToAttach();
+        }
+        else
+        {
+            //Detach
+        }
     }
 
     public void MovementInput(Square requestingSquare,Vector2 movementVector)
     {
         _inputsFromchildren[requestingSquare] = movementVector;
-        Debug.Log(movementVector.ToString("F4")); 
+        //Debug.Log(movementVector.ToString("F4"));//F4 -> expressió amb 4 decimals
     }
 
     private void Move()//Once per frame
@@ -309,7 +317,9 @@ public class SuperSquare : MonoBehaviour {
         //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
 
         int numberOfChildren = _childs.Count;
-        
+
+        if (numberOfChildren < 1) { return; }
+
         Vector2 AddedVelocity = Vector2.zero;
         foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
         {

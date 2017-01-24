@@ -5,11 +5,13 @@ public class Square : MonoBehaviour
 {
     public float _length = 1f;
     public AttachPoint _AttachPointPrefab;
-    public float xSpeed = 7.1f;
-    public float ySpeed = 3.8f;
+    public float _xSpeed = 7.1f;
+    public float _ySpeed = 3.8f;
+    public float _magnetWaitTime = 1.5f;
 
     private Vector2[] _vertices;
     private AttachPoint[] _attachPoints;
+    private bool _isMagnetEnabled = true;
 
     
 
@@ -92,9 +94,32 @@ public class Square : MonoBehaviour
     {
         Vector2 velocityVector = new Vector2(x, y);
         velocityVector.Normalize();
-        velocityVector.x *= Time.deltaTime * xSpeed;
-        velocityVector.y *= Time.deltaTime * ySpeed;
-        Debug.Log(""+velocityVector.x + "  " + velocityVector.y);
+        velocityVector.x *= Time.deltaTime * _xSpeed;
+        velocityVector.y *= Time.deltaTime * _ySpeed;
+        //Debug.Log(""+velocityVector.x + "  " + velocityVector.y);
         GetComponentInParent<SuperSquare>().MovementInput(this, velocityVector);//Canviar la manera de pillar referencia
+    }
+
+    public void UseMagnet()
+    {
+        if (_isMagnetEnabled)
+        {
+            GetComponentInParent<SuperSquare>().MagnetInput(this);//Canviar la manera de pillar referencia
+            StartTimer();
+        }
+    }
+
+    private void StartTimer()
+    {
+        _isMagnetEnabled = false;
+        Debug.Log("Magnet disabled");
+        StartCoroutine(WaitActiveTime());
+    }
+
+    private IEnumerator WaitActiveTime()
+    {
+        yield return new WaitForSeconds(_magnetWaitTime);
+        _isMagnetEnabled = true;
+        Debug.Log("Magnet enabled");
     }
 }
