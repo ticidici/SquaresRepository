@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 [RequireComponent(typeof(SquareController))]
 public class Square : MonoBehaviour
@@ -115,7 +114,7 @@ public class Square : MonoBehaviour
             item.isBusy = false;
         }
         transform.parent = gameObject.transform.root;
-        _firstParent.SendMessage("Reset", this);
+        _firstParent.SendMessage("Add", this);
         ResetColor();
     }
 
@@ -147,7 +146,8 @@ public class Square : MonoBehaviour
 
     public float GetDistance(Square target)
     {
-        return Vector3.Distance(target.transform.position, transform.position);        
+        //return Vector3.Distance(target.transform.position, transform.position);
+        return Vector3.SqrMagnitude(target.transform.position - transform.position);
     }
 
     public void Move(float x, float y)

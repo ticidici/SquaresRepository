@@ -1,6 +1,4 @@
-﻿using System;
-using UnityEngine;
-using System.Collections;
+﻿using UnityEngine;
 using System.Collections.Generic;
 
 public class SuperSquare : MonoBehaviour {
@@ -61,8 +59,8 @@ public class SuperSquare : MonoBehaviour {
 
     // Actualitzem el primer fill que tenim.
     // Es garantitza que sempre hi haura nomes un fill d'inici.
-    private void UpdateChild() {
-
+    private void UpdateChild()
+    {
         transform.GetChild(0).GetComponent<SquareController>()._playerNumber = _id+1;
         Square currentChild = transform.GetChild(0).GetComponent<Square>();
         currentChild.Id = _id;
@@ -71,9 +69,8 @@ public class SuperSquare : MonoBehaviour {
         _inputsFromchildren.Add(currentChild, Vector2.zero);        
     }
     
-    // Cerca SuperSquares a un radi 3. Fa detach i attach a target.
-    // El attach es presuposa sempre viable.
-    private void SearchSuperSquareToAttach() // TODO: Canviar nom
+    // Cerca SuperSquares a un radi 3u. Fa detach i attach a target.
+    private void SearchSuperSquareToAttach()                            // TODO: REV!.
     {
         Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, 3, _layerMaskToSearch);
        
@@ -82,82 +79,68 @@ public class SuperSquare : MonoBehaviour {
             if (!item.CompareTag(tag)) // TODO: canviar el tag per /nom/etc
             {
                 SuperSquare target = item.GetComponent<SuperSquare>();
+                target.GetComponent<BoxCollider2D>().enabled = false;
 
                 while (!target.IsEmpty()) {
                     // Search the child most nearby.
                     Square[] closestPair = GetClosestPairOfSquares(target);
                     
                     // Set free the target square
-                    target.DeleteSquare(closestPair[0]);
+                    target.Remove(closestPair[0]);
 
                     // Attach
                     closestPair[0].AttachTo(closestPair[1]);
 
                     // Set new parent
-                    AddSquare(closestPair[0]);
+                    Add(closestPair[0]);
                 }
             }
         }
     }
 
     // Retornem el parell de Squares amb menor distancia amb target
-    // Index 0: es qui els square del supersquare que vol fer attach
+    // Index 0: es el square del supersquare que vol fer attach
     // Index 1: es l'altre square a que li faran attach
-    private Square[] GetClosestPairOfSquares(SuperSquare target) // TODO: Millorar
-    {        
-        float min = 0;
-        bool first = true;
-        Square[] sol = new Square[2];
+    private Square[] GetClosestPairOfSquares(SuperSquare target)
+    {
+        float minDistance = target._children[0].GetDistance(_children[0]);        
+        Square[] squarePair = new Square[2] { target._children[0], _children[0] };
+        
+        int length = _children.Count;
+        int targetLength = target._children.Count;
 
-        foreach (Square a in target._children.ToArray())
-        {            
-            foreach (Square b in _children.ToArray())
+        for(int i = 0; i < targetLength; i++)
+        {
+            Square targetSquare = target._children[i];
+            for (int j = 0; j < length; j++)
             {
-                if (first)
+                Square square = _children[j];
+                float distance = square.GetDistance(targetSquare);
+
+                if (minDistance > distance)
                 {
-                    first = false;
-                    min = target._children[0].GetDistance(_children[0]);
-                    sol[0] = a;
-                    sol[1] = b;
-                }
-                else
-                {
-                    float aux = a.GetDistance(b);
-                    if (min > aux)
-                    {
-                        min = aux;
-                        sol[0] = a;
-                        sol[1] = b;
-                    }
+                    minDistance = distance;
+                    squarePair[0] = targetSquare;
+                    squarePair[1] = square;
                 }
             }
         }
-        return sol;
+        return squarePair;         
     }
 
-    // Posiblement canviar el nom, no es un reset reset
-    // Pre: el child no te cap pare
-    // Pos: Posicionem el SuperSquare en la posicio del fill original i l'emparentem.
-    private void Reset(Square child) // Es cridat per el Square quan es queda orfan.
-    {
-        transform.position = child.transform.position;  // Actualitzem la posicio del super
-        transform.rotation = child.transform.rotation;  // Actualitzem la rotacio del super
-        AddSquare(child);
-        GetComponent<BoxCollider2D>().enabled = true;
-    }
-
-    // Detach de tots els fills fent una explosio en la posicio de requestingSquare
-    private void DetachAllChildren(Vector3 requestingSquarePosition)                // TODO: Millora, detach de tots menys el nostre!
+    // Detach de tots els fills. Es fa una explosio en la posicio de requestingSquare
+    private void DetachAllChildren(Vector3 requestingSquarePosition)
     {
         // No cal fer Detach si nomes tenim 1 fill.
         if (_children.Count < 2)
             return;
 
-        foreach (Square item in _children.ToArray())  // Per cada fill fem el dettach i el borrem de la llista
+        // Per cada fill fem el dettach i el borrem de la llista
+        foreach (Square item in _children.ToArray())
         {
             item.Detach();
             _children.Remove(item);
-            //_inputsFromchildren.Remove(item);
+            //_inputsFromchildren.Remove(item);     // Implicit
         }
         Explosion(requestingSquarePosition);
     }
@@ -166,20 +149,28 @@ public class SuperSquare : MonoBehaviour {
     #region Public Methods
 
     // Add target to the children List and set him this as a parent.
-    public void AddSquare(Square target)
+    public void Add(Square target)
     {
+        if (target == null)     // Excepcio/Chivato w/e
+            return;
+        else if (IsEmpty())     // Entrem quan tornem de un detach, que es quan el SuperSquare esta buit.
+        {
+            transform.position = target.transform.position;  // Actualitzem la posicio del super
+            transform.rotation = target.transform.rotation;  // Actualitzem la rotacio del super           
+
+            // Tornem a activar el collider.
+            GetComponent<BoxCollider2D>().enabled = true;
+        } 
+
         target.gameObject.transform.parent = transform;
         _children.Add(target);
         //_inputsFromchildren.Add(target, Vector2.zero);    // Implicit alhora de posarlo com a child
     }
 
-    public void DeleteSquare(Square target)
+    public void Remove(Square target)
     {       
         _children.Remove(target);
-        //_inputsFromchildren.Remove(target);               // Implicit alhora de posarlo com a child
-
-        if (_children.Count == 0)
-            GetComponent<BoxCollider2D>().enabled = false;        
+        //_inputsFromchildren.Remove(target);               // Implicit alhora de posarlo com a child            
     }
 
     public bool IsEmpty()
@@ -205,7 +196,7 @@ public class SuperSquare : MonoBehaviour {
     #endregion
 
     #region Input Related
-    /*
+    
     // Versio Nico. La molongui
     private void Move()//Once per frame
     {
@@ -222,8 +213,8 @@ public class SuperSquare : MonoBehaviour {
         }
 
         GetComponent<Rigidbody2D>().AddForceAtPosition(movement / numberOfChildren, transform.position + new Vector3(0, 0.1f, 0), ForceMode2D.Impulse);
-    }*/
-            
+    }
+        /*    
     // Versio Tomas amb velocitat i translate. Es curios xd        
     private void Move()//Once per frame 
     {
@@ -240,7 +231,7 @@ public class SuperSquare : MonoBehaviour {
         }
 
         transform.Translate(AddedVelocity / numberOfChildren);//Revisar
-    }
+    }*/
 
     public void MovementInput(Square requestingSquare, Vector2 movementVector)
     {
