@@ -121,7 +121,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 1000013611324396}
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 0
+  m_LinearDrag: 1.5
   m_AngularDrag: 1
   m_GravityScale: 0
   m_IsKinematic: 0
@@ -180,11 +180,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ffce96428d7ea545ac51aa2db6e11a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _length: 1
   _AttachPointPrefab: {fileID: 114000013195679156, guid: b3bdb863b1690344b905c6c4f4deff32,
     type: 2}
-  _xSpeed: 7.1
-  _ySpeed: 3.8
+  _length: 1
+  _xSpeed: 20
+  _ySpeed: 16
   _magnetWaitTime: 1.5
 --- !u!114 &114000013267779452
 MonoBehaviour:
@@ -200,3 +200,4 @@ MonoBehaviour:
   _layerMaskToSearch:
     serializedVersion: 2
     m_Bits: 256
+  velo: {x: 0, y: 0}

@@ -58,6 +58,10 @@ public class SquareController : MonoBehaviour {
         {
             _squareModel.UseMagnet();
             //Debug.Log("magnet");
+        } else if(Input.GetKeyDown(KeyCode.Space))
+        {
+            transform.parent.GetComponent<Rigidbody2D>().AddForce(new Vector2(0,10), ForceMode2D.Impulse);
+            //transform.parent.GetComponent<Rigidbody2D>().MovePosition(new Vector2(0, 10), ForceMode2D.Impulse);
         }
     }
 

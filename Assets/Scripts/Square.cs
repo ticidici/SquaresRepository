@@ -107,6 +107,7 @@ public class Square : MonoBehaviour
     #endregion
 
     #region Public Methods
+
     public void Detach() // Poder hi ha algun bug per no desactivar els colliders? De moment no hi ha res sospitos
     {
         foreach (AttachPoint item in _attachPoints)
@@ -120,8 +121,8 @@ public class Square : MonoBehaviour
 
     public void AttachTo(Square target) // TODO: Passar-ho a net/Millorar
     {
-        target.gameObject.GetComponent<BoxCollider2D>().enabled = false;
-        GetComponent<BoxCollider2D>().enabled = false;
+        //target.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        //GetComponent<BoxCollider2D>().enabled = false;
 
         ResetColor();
         target.ResetColor();
@@ -131,22 +132,22 @@ public class Square : MonoBehaviour
         Vector3 distanceBetweenSquares = target.gameObject.transform.position - transform.position;
         Vector3 dir = distanceBetweenSquares.normalized;
 
-        Vector3 initPoint = transform.position + dir * _length;
-        Vector3 finalPoint = target.gameObject.transform.position - dir * _length;
+        Vector3 initPoint = transform.position + dir * _length;                     // AttachPoint tenin en compte la rotacio
+        Vector3 finalPoint = target.gameObject.transform.position - dir * _length;  // AttachPoint tenin en compte la rotacio
 
+        // Posar els AttachPoints ocupats
         AttachPoint a = GetAttachPointClosestTo(initPoint);
         a.isBusy = true;
         AttachPoint b = target.GetAttachPointClosestTo(finalPoint);
         b.isBusy = true;
         transform.position = b.transform.position;
 
-        target.gameObject.GetComponent<BoxCollider2D>().enabled = true;
-        GetComponent<BoxCollider2D>().enabled = true;
+        //target.gameObject.GetComponent<BoxCollider2D>().enabled = true;
+        //GetComponent<BoxCollider2D>().enabled = true;
     }
 
     public float GetDistance(Square target)
     {
-        //return Vector3.Distance(target.transform.position, transform.position);
         return Vector3.SqrMagnitude(target.transform.position - transform.position);
     }
 

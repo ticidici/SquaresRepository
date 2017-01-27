@@ -25,6 +25,8 @@ public class SuperSquare : MonoBehaviour {
         }
     }
 
+    public Vector2 velo;
+
     #region Unity Methods
     void Awake()
     {
@@ -52,6 +54,7 @@ public class SuperSquare : MonoBehaviour {
     void FixedUpdate()
     {
         Move();
+        velo = GetComponent<Rigidbody2D>().velocity;
     }
     #endregion
 
@@ -206,13 +209,14 @@ public class SuperSquare : MonoBehaviour {
 
         if (numberOfChildren < 1) { return; }
 
-        Vector2 movement = Vector2.zero;
+        //Vector2 movement = Vector2.zero;
         foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
         {
-            movement += childInputPair.Value;
+            //movement += childInputPair.Value;
+            GetComponent<Rigidbody2D>().AddForceAtPosition(childInputPair.Value / numberOfChildren, childInputPair.Key.transform.position, ForceMode2D.Impulse);
         }
 
-        GetComponent<Rigidbody2D>().AddForceAtPosition(movement / numberOfChildren, transform.position + new Vector3(0, 0.1f, 0), ForceMode2D.Impulse);
+        
     }
         /*    
     // Versio Tomas amb velocitat i translate. Es curios xd        
