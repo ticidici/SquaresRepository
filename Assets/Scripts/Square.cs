@@ -12,6 +12,7 @@ public class Square : MonoBehaviour
 
     private AttachPoint[] _attachPoints;
     private GameObject _firstParent;
+    private SuperSquare _currentSuperSquare;
     private bool _isMagnetEnabled = true;
     private int _id;
 
@@ -27,7 +28,8 @@ public class Square : MonoBehaviour
     void Awake()
     {        
         _attachPoints = new AttachPoint[4];
-        _firstParent = transform.parent.gameObject;        
+        _firstParent = transform.parent.gameObject;
+        _currentSuperSquare = _firstParent.GetComponent<SuperSquare>();        
     }
 
     void Start()
@@ -158,16 +160,38 @@ public class Square : MonoBehaviour
         velocityVector.x *= Time.deltaTime * _xSpeed;
         velocityVector.y *= Time.deltaTime * _ySpeed;
         //Debug.Log(""+velocityVector.x + "  " + velocityVector.y);
-        GetComponentInParent<SuperSquare>().MovementInput(this, velocityVector);//Canviar la manera de pillar referencia
+        //GetComponentInParent<SuperSquare>().MovementInput(this, velocityVector);//Canviar la manera de pillar referencia
+        _currentSuperSquare.MovementInput(this, velocityVector);
     }
 
     public void UseMagnet()
     {
         if (_isMagnetEnabled)
         {
-            GetComponentInParent<SuperSquare>().MagnetInput(this);//Canviar la manera de pillar referencia
+            //GetComponentInParent<SuperSquare>().MagnetInput(this);//Canviar la manera de pillar referencia
+            _currentSuperSquare.MagnetInput(this);
             StartTimer();
         }
+    }
+
+    public void KillThisSquare()
+    {
+        _currentSuperSquare.Remove(this);
+        transform.parent = gameObject.transform.root;
+        Debug.Log("I'm being killed");
+        
+        StartCoroutine(Explode());
+    }
+
+    public IEnumerator Explode()
+    {
+        yield return new WaitForSeconds(0.03f);//TODO: Fer una animació d'explosió de veritat
+        Destroy(gameObject);
+    }
+
+    public void SetSuperSquare(SuperSquare parent)
+    {
+        _currentSuperSquare = parent;
     }
     #endregion
 }

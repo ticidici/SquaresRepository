@@ -81,7 +81,7 @@ public class SuperSquare : MonoBehaviour {
         {
             if (!item.CompareTag(tag)) // TODO: canviar el tag per /nom/etc
             {
-                SuperSquare target = item.GetComponent<SuperSquare>();
+                SuperSquare target = item.GetComponent<SuperSquare>();//TODO: Fer més general per poder enganxar-se a altres coses
                 target.GetComponent<BoxCollider2D>().enabled = false;
 
                 while (!target.IsEmpty()) {
@@ -138,7 +138,7 @@ public class SuperSquare : MonoBehaviour {
         if (_children.Count < 2)
             return;
 
-        // Per cada fill fem el dettach i el borrem de la llista
+        // Per cada fill fem el detach i l'esborrem de la llista
         foreach (Square item in _children.ToArray())
         {
             item.Detach();
@@ -147,6 +147,7 @@ public class SuperSquare : MonoBehaviour {
         }
         Explosion(requestingSquarePosition);
     }
+
     #endregion
 
     #region Public Methods
@@ -167,6 +168,7 @@ public class SuperSquare : MonoBehaviour {
 
         target.gameObject.transform.parent = transform;
         _children.Add(target);
+        target.SetSuperSquare(this);
         //_inputsFromchildren.Add(target, Vector2.zero);    // Implicit alhora de posarlo com a child
     }
 
@@ -210,13 +212,29 @@ public class SuperSquare : MonoBehaviour {
         if (numberOfChildren < 1) { return; }
 
         //Vector2 movement = Vector2.zero;
+        /*
         foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
         {
             //movement += childInputPair.Value;
             GetComponent<Rigidbody2D>().AddForceAtPosition(childInputPair.Value / numberOfChildren, childInputPair.Key.transform.position, ForceMode2D.Impulse);
+            //GetComponent<Rigidbody2D>().AddForceAtPosition(childInputPair.Value / numberOfChildren, transform.position, ForceMode2D.Impulse);
+           
+        }*/
+
+        List<Square> keys = new List<Square>(_inputsFromchildren.Keys);
+        foreach (Square square in keys)
+        {
+            if (square == null)
+            {
+                _inputsFromchildren.Remove(square);
+            }
+            else
+            {
+                GetComponent<Rigidbody2D>().AddForceAtPosition(_inputsFromchildren[square] / numberOfChildren, square.transform.position, ForceMode2D.Impulse);
+            }
         }
 
-        
+
     }
         /*    
     // Versio Tomas amb velocitat i translate. Es curios xd        
