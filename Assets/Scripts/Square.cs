@@ -174,13 +174,18 @@ public class Square : MonoBehaviour
         }
     }
 
+    //<<<<<<<<<< - Mil proves aquí
     public void KillThisSquare()
     {
-        _currentSuperSquare.Remove(this);
-        transform.parent = gameObject.transform.root;
+        _currentSuperSquare.DetachAllChildren(transform.position);
+        //_currentSuperSquare.Remove(this);
+        //transform.parent = gameObject.transform.root;
         Debug.Log("I'm being killed");
-        
-        StartCoroutine(Explode());
+
+        //Mandarle al supersquare el mensaje de juntar a todos menos él
+        //_currentSuperSquare.AttachOthers(this);
+        Destroy(gameObject);
+        //StartCoroutine(Explode());
     }
 
     public IEnumerator Explode()

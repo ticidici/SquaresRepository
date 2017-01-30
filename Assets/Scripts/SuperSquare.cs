@@ -79,23 +79,27 @@ public class SuperSquare : MonoBehaviour {
        
         foreach (var item in found)
         {
-            if (!item.CompareTag(tag)) // TODO: canviar el tag per /nom/etc
+            if (item.GetComponentInChildren<Square>())// <<<<<< - No volem ajuntar-nos a una supersquare sense square (per això el que té lògica és fer l'overlap circle amb layer de square i no supersquare)
             {
-                SuperSquare target = item.GetComponent<SuperSquare>();//TODO: Fer més general per poder enganxar-se a altres coses
-                target.GetComponent<BoxCollider2D>().enabled = false;
+                if (!item.CompareTag(tag)) // TODO: canviar el tag per /nom/etc
+                {
+                    SuperSquare target = item.GetComponent<SuperSquare>();//TODO: Fer més general per poder enganxar-se a altres coses
+                    target.GetComponent<BoxCollider2D>().enabled = false;
 
-                while (!target.IsEmpty()) {
-                    // Search the child most nearby.
-                    Square[] closestPair = GetClosestPairOfSquares(target);
-                    
-                    // Set free the target square
-                    target.Remove(closestPair[0]);
+                    while (!target.IsEmpty())
+                    {
+                        // Search the child most nearby.
+                        Square[] closestPair = GetClosestPairOfSquares(target);
 
-                    // Attach
-                    closestPair[0].AttachTo(closestPair[1]);
+                            // Set free the target square
+                            target.Remove(closestPair[0]);
 
-                    // Set new parent
-                    Add(closestPair[0]);
+                            // Attach
+                            closestPair[0].AttachTo(closestPair[1]);
+
+                            // Set new parent
+                            Add(closestPair[0]);
+                    }
                 }
             }
         }
@@ -132,7 +136,8 @@ public class SuperSquare : MonoBehaviour {
     }
 
     // Detach de tots els fills. Es fa una explosio en la posicio de requestingSquare
-    private void DetachAllChildren(Vector3 requestingSquarePosition)
+    //<<<<<< - ara és públic, per poder-lo cridar desde square
+    public void DetachAllChildren(Vector3 requestingSquarePosition)//<<<<<<<< - Molaria fer-ho més modular per poder decidir si hi ha o no explosió, o explosió en altres sentits, per exemple
     {
         // No cal fer Detach si nomes tenim 1 fill.
         if (_children.Count < 2)
@@ -183,6 +188,45 @@ public class SuperSquare : MonoBehaviour {
         return _children.Count == 0;
     }
 
+
+    // <<<<<<<<<<<<<< - Una prova de SearchSuperSquareToAttach però sense pillar el square que crida la funció
+    /*
+    public void AttachOthers(Square notToAttach)
+    {
+        Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, 3, _layerMaskToSearch);
+
+        foreach (var item in found)
+        {
+            if (item.GetComponentInChildren<Square>() && item.GetComponentInChildren<Square>() != notToAttach)
+            {
+                if (!item.CompareTag(tag)) // TODO: canviar el tag per /nom/etc
+                {
+                    SuperSquare target = item.GetComponent<SuperSquare>();//TODO: Fer més general per poder enganxar-se a altres coses
+                    target.GetComponent<BoxCollider2D>().enabled = false;
+
+                    while (!target.IsEmpty())
+                    {
+                        // Search the child most nearby.
+                        Square[] closestPair = GetClosestPairOfSquares(target);
+
+                        // Set free the target square
+                        target.Remove(closestPair[0]);
+
+                        // Attach
+                        closestPair[0].AttachTo(closestPair[1]);
+
+                        // Set new parent
+                        Add(closestPair[0]);
+                    }
+                }
+            }
+        }
+    }
+    */
+    #endregion
+
+    #region Input Related
+
     public void MagnetInput(Square requestingSquare)
     {
         //Debug.Log("magnet input");
@@ -198,10 +242,7 @@ public class SuperSquare : MonoBehaviour {
             DetachAllChildren(requestingSquare.transform.position);
         }
     }
-    #endregion
 
-    #region Input Related
-    
     // Versio Nico. La molongui
     private void Move()//Once per frame
     {
@@ -267,7 +308,7 @@ public class SuperSquare : MonoBehaviour {
     private void Explosion(Vector3 explosionPos)   // Test
     {
         float radius = 5.0f;
-        float power = 1000.0f;
+        float power = 200.0f;
         Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, 2, _layerMaskToSearch);
         foreach (Collider2D hit in colliders)
         {
