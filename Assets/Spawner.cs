@@ -19,13 +19,13 @@ public class Spawner : MonoBehaviour {
     // Cooldown del magnet
     private void StartTimer()
     {
-        Instantiate(_obvs, new Vector2(Random.Range(-9, 9), transform.position.y - 25), Quaternion.identity);
+        Instantiate(_obvs, new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f), Quaternion.identity);
         //StartCoroutine(WaitActiveTime());
     }
 
     private IEnumerator WaitActiveTime()
     {
-        Instantiate(_obvs, new Vector2(Random.Range(-9, 9), transform.position.y - 25), Quaternion.identity);
+        Instantiate(_obvs, new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f), Quaternion.identity);
         yield return new WaitForSeconds(_waitTimebetweenSpawns);
     }
 }
