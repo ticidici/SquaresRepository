@@ -29,13 +29,14 @@ public class Square : MonoBehaviour
     {        
         _attachPoints = new AttachPoint[4];
         _firstParent = transform.parent.gameObject;
-        _currentSuperSquare = _firstParent.GetComponent<SuperSquare>();        
+        _currentSuperSquare = _firstParent.GetComponent<SuperSquare>();  
     }
 
     void Start()
     {
         SetAttachPoints();
         ResetColor();
+        GetComponent<ParticleSystem>().startColor = GetComponent<Renderer>().material.color;
     }
 
     // Al fer colisio amb un altre collider, canviem el color a blanc

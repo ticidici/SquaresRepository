@@ -9,6 +9,7 @@ public class MoveUp : MonoBehaviour {
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        GetComponent<Renderer>().material.color = Color.gray;
     }
 
 	// Use this for initialization
