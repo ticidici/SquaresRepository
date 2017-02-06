@@ -138,7 +138,7 @@ public class SuperSquare : MonoBehaviour {
 
     // Detach de tots els fills. Es fa una explosio en la posicio de requestingSquare
     //<<<<<< - ara és públic, per poder-lo cridar desde square
-    public void DetachAllChildren(Vector3 requestingSquarePosition)//<<<<<<<< - Molaria fer-ho més modular per poder decidir si hi ha o no explosió, o explosió en altres sentits, per exemple
+    public void DetachAllChildren(/*Vector3 requestingSquarePosition*/)//<<<<<<<< - Molaria fer-ho més modular per poder decidir si hi ha o no explosió, o explosió en altres sentits, per exemple
     {
         // No cal fer Detach si nomes tenim 1 fill.
         if (_children.Count < 2)
@@ -155,7 +155,7 @@ public class SuperSquare : MonoBehaviour {
         if(IsEmpty())
             Collider.enabled = false;
 
-        Explosion(requestingSquarePosition);
+       // Explosion(requestingSquarePosition);
     }
 
     #endregion
@@ -194,7 +194,6 @@ public class SuperSquare : MonoBehaviour {
     {
         return _children.Count == 0;
     }
-
 
     // <<<<<<<<<<<<<< - Una prova de SearchSuperSquareToAttach però sense pillar el square que crida la funció
     /*
@@ -246,7 +245,7 @@ public class SuperSquare : MonoBehaviour {
         else
         {
             Debug.Log("Detach");
-            DetachAllChildren(requestingSquare.transform.position);
+            DetachAllChildren(/*requestingSquare.transform.position*/);
         }
     }
 
@@ -271,25 +270,7 @@ public class SuperSquare : MonoBehaviour {
                 _rb.AddForceAtPosition(_inputsFromchildren[square] / numberOfChildren, square.transform.position, ForceMode2D.Impulse);
             }
         }
-    }
-        /*    
-    // Versio Tomas amb velocitat i translate. Es curios xd        
-    private void Move()//Once per frame 
-    {
-        //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
-
-        int numberOfChildren = _children.Count;
-
-        if (numberOfChildren < 1) { return; }
-
-        Vector2 AddedVelocity = Vector2.zero;
-        foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
-        {
-            AddedVelocity += childInputPair.Value;
-        }
-
-        transform.Translate(AddedVelocity / numberOfChildren);//Revisar
-    }*/
+    }    
 
     public void MovementInput(Square requestingSquare, Vector2 movementVector)
     {
@@ -315,4 +296,16 @@ public class SuperSquare : MonoBehaviour {
         }
     }
     #endregion
+
+    // Problema al eliminar i juntar, el que s'ajunten poden morir ja que poden ocupar la posicio del child que mor a primera instancia
+    private void OnDeathChild() 
+    {
+        if (_children.Count < 2)
+            return;
+
+        for (int i = 1; i < _children.Count; i++)
+        {
+            _children[i].AttachTo(_children[0]);
+        }
+    }
 }

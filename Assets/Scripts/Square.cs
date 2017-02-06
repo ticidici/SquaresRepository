@@ -123,9 +123,6 @@ public class Square : MonoBehaviour
 
     public void AttachTo(Square target) // TODO: Passar-ho a net/Millorar
     {
-        //target.gameObject.GetComponent<BoxCollider2D>().enabled = false;
-        //GetComponent<BoxCollider2D>().enabled = false;
-
         ResetColor();
         target.ResetColor();
         
@@ -143,9 +140,6 @@ public class Square : MonoBehaviour
         AttachPoint b = target.GetAttachPointClosestTo(finalPoint);
         b.isBusy = true;
         transform.position = b.transform.position;
-
-        //target.gameObject.GetComponent<BoxCollider2D>().enabled = true;
-        //GetComponent<BoxCollider2D>().enabled = true;
     }
 
     public float GetDistance(Square target)
@@ -159,8 +153,6 @@ public class Square : MonoBehaviour
         velocityVector.Normalize();
         velocityVector.x *= Time.deltaTime * _xSpeed;
         velocityVector.y *= Time.deltaTime * _ySpeed;
-        //Debug.Log(""+velocityVector.x + "  " + velocityVector.y);
-        //GetComponentInParent<SuperSquare>().MovementInput(this, velocityVector);//Canviar la manera de pillar referencia
         _currentSuperSquare.MovementInput(this, velocityVector);
     }
 
@@ -168,7 +160,6 @@ public class Square : MonoBehaviour
     {
         if (_isMagnetEnabled)
         {
-            //GetComponentInParent<SuperSquare>().MagnetInput(this);//Canviar la manera de pillar referencia
             _currentSuperSquare.MagnetInput(this);
             StartTimer();
         }
@@ -177,18 +168,13 @@ public class Square : MonoBehaviour
     //<<<<<<<<<< - Mil proves aquí
     public void KillThisSquare()
     {
-        _currentSuperSquare.Remove(this);        
+        _currentSuperSquare.Remove(this);
 
-        _currentSuperSquare.DetachAllChildren(transform.position);
-        //_currentSuperSquare.Remove(this);
-        //transform.parent = gameObject.transform.root;
+        _currentSuperSquare.SendMessage("OnDeathChild");
+
         Debug.Log("I'm being killed");
 
         Destroy(gameObject);
-        //Mandarle al supersquare el mensaje de juntar a todos menos él
-        //_currentSuperSquare.AttachOthers(this);
-
-        //StartCoroutine(Explode());
     }
 
     public IEnumerator Explode()
