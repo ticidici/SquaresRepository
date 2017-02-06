@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+[RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
 public class SuperSquare : MonoBehaviour {
        
     private int _id;                            // Test Input
@@ -11,6 +12,8 @@ public class SuperSquare : MonoBehaviour {
 
     // INPUT
     private Dictionary<Square, Vector2> _inputsFromchildren;
+    private Rigidbody2D _rb;
+    private BoxCollider2D _collider;
 
     // Getter/Setter per Test
     public int Id                               // Test Input
@@ -25,6 +28,14 @@ public class SuperSquare : MonoBehaviour {
         }
     }
 
+    public BoxCollider2D Collider
+    {
+        get
+        {
+            return _collider;
+        }
+    }
+
     public Vector2 velo;
 
     #region Unity Methods
@@ -32,6 +43,9 @@ public class SuperSquare : MonoBehaviour {
     {
         _children = new List<Square>();
         _inputsFromchildren = new Dictionary<Square, Vector2>();
+
+        _rb = GetComponent<Rigidbody2D>();
+        _collider = GetComponent<BoxCollider2D>();
     }
 
     void Start()
@@ -39,22 +53,10 @@ public class SuperSquare : MonoBehaviour {
         UpdateChild();
     }
 
-    void Update()
-    {
-        // Attach others squares
-        /*if (tag.Equals("Player1") && (Input.GetKeyDown(KeyCode.O) || Input.GetKeyDown(KeyCode.Joystick1Button2)))        
-            SearchSuperSquareToAttach();
-        
-        // Detach all children
-        if (tag.Equals("Player1") &&  (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Joystick1Button1)))
-            DetachAllChildren(); // Test
-            */
-    }
-
     void FixedUpdate()
     {
         Move();
-        velo = GetComponent<Rigidbody2D>().velocity;
+        velo = _rb.velocity;
     }
     #endregion
 
@@ -79,12 +81,11 @@ public class SuperSquare : MonoBehaviour {
        
         foreach (var item in found)
         {
-            if (item.GetComponentInChildren<Square>())// <<<<<< - No volem ajuntar-nos a una supersquare sense square (per això el que té lògica és fer l'overlap circle amb layer de square i no supersquare)
-            {
+            //if (item.GetComponentInChildren<Square>())// <<<<<< - No volem ajuntar-nos a una supersquare sense square (per això el que té lògica és fer l'overlap circle amb layer de square i no supersquare)
+           // {
                 if (!item.CompareTag(tag)) // TODO: canviar el tag per /nom/etc
                 {
-                    SuperSquare target = item.GetComponent<SuperSquare>();//TODO: Fer més general per poder enganxar-se a altres coses
-                    target.GetComponent<BoxCollider2D>().enabled = false;
+                    SuperSquare target = item.GetComponent<SuperSquare>();//TODO: Fer més general per poder enganxar-se a altres coses                    
 
                     while (!target.IsEmpty())
                     {
@@ -101,7 +102,7 @@ public class SuperSquare : MonoBehaviour {
                             Add(closestPair[0]);
                     }
                 }
-            }
+           // }
         }
     }
 
@@ -150,6 +151,10 @@ public class SuperSquare : MonoBehaviour {
             _children.Remove(item);
             //_inputsFromchildren.Remove(item);     // Implicit
         }
+
+        if(IsEmpty())
+            Collider.enabled = false;
+
         Explosion(requestingSquarePosition);
     }
 
@@ -168,7 +173,7 @@ public class SuperSquare : MonoBehaviour {
             transform.rotation = target.transform.rotation;  // Actualitzem la rotacio del super           
 
             // Tornem a activar el collider.
-            GetComponent<BoxCollider2D>().enabled = true;
+            _collider.enabled = true;
         } 
 
         target.gameObject.transform.parent = transform;
@@ -180,6 +185,8 @@ public class SuperSquare : MonoBehaviour {
     public void Remove(Square target)
     {       
         _children.Remove(target);
+        if(IsEmpty())
+            Collider.enabled = false;
         //_inputsFromchildren.Remove(target);               // Implicit alhora de posarlo com a child            
     }
 
@@ -252,16 +259,6 @@ public class SuperSquare : MonoBehaviour {
 
         if (numberOfChildren < 1) { return; }
 
-        //Vector2 movement = Vector2.zero;
-        /*
-        foreach (KeyValuePair<Square, Vector2> childInputPair in _inputsFromchildren)
-        {
-            //movement += childInputPair.Value;
-            GetComponent<Rigidbody2D>().AddForceAtPosition(childInputPair.Value / numberOfChildren, childInputPair.Key.transform.position, ForceMode2D.Impulse);
-            //GetComponent<Rigidbody2D>().AddForceAtPosition(childInputPair.Value / numberOfChildren, transform.position, ForceMode2D.Impulse);
-           
-        }*/
-
         List<Square> keys = new List<Square>(_inputsFromchildren.Keys);
         foreach (Square square in keys)
         {
@@ -271,11 +268,9 @@ public class SuperSquare : MonoBehaviour {
             }
             else
             {
-                GetComponent<Rigidbody2D>().AddForceAtPosition(_inputsFromchildren[square] / numberOfChildren, square.transform.position, ForceMode2D.Impulse);
+                _rb.AddForceAtPosition(_inputsFromchildren[square] / numberOfChildren, square.transform.position, ForceMode2D.Impulse);
             }
         }
-
-
     }
         /*    
     // Versio Tomas amb velocitat i translate. Es curios xd        
@@ -304,6 +299,7 @@ public class SuperSquare : MonoBehaviour {
     #endregion
 
     #region utils
+
     // Nomes per fer el test
     private void Explosion(Vector3 explosionPos)   // Test
     {
