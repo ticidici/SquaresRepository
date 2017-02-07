@@ -214,15 +214,16 @@ public class SuperSquare : PooledObject
         _rb.velocity = Vector2.zero;//parem la formació per assegurar-nos que les forces sempre fan l'efect desitjat
 
         List<Square> keys = new List<Square>(_inputsFromchildren.Keys);
-        foreach (Square square in keys)
+
+        foreach (KeyValuePair<Square, Vector2> entry in _inputsFromchildren)
         {
-            if (square == null)
+            if (entry.Key == null)
             {
-                _inputsFromchildren.Remove(square);
+                _inputsFromchildren.Remove(entry.Key);
             }
             else
             {
-                _rb.AddForceAtPosition(pushDirection * pushForce / numberOfChildren, square.transform.position, ForceMode2D.Impulse);
+                _rb.AddForceAtPosition(pushDirection * pushForce / numberOfChildren, entry.Key.transform.position, ForceMode2D.Impulse);
             }
         }
     }
@@ -298,11 +299,6 @@ public class SuperSquare : PooledObject
             return;
 
         StartCoroutine(Reattach());
-        /*
-        for (int i = 1; i < _children.Count; i++)
-        {
-            _children[i].AttachTo(_children[0]);
-        }*/
     }
 
     private IEnumerator Reattach()
