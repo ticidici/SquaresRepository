@@ -1,34 +1,60 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
+[RequireComponent(typeof(SquareController))]
 public class Square : MonoBehaviour
 {
-    public float _length = 1f;
     public AttachPoint _AttachPointPrefab;
+    public float _length = 1f;    
+    public float _xSpeed = 7.1f;
+    public float _ySpeed = 3.8f;
+    public float _magnetWaitTime = 1.5f;
 
     private AttachPoint[] _attachPoints;
-    private GameObject _parent;
+    private GameObject _firstParent;
+    private SuperSquare _currentSuperSquare;
+    private bool _isMagnetEnabled = true;
+    private int _id;
 
-    private Color _color; // test
-    public Color Color
+    public int Id
     {
         set
         {
-            _color = value;
-            ResetColor();
+            _id = value;
         }
     }
 
+    #region Unity Methods
     void Awake()
-    {
-        // ATTACH POINTS
+    {        
         _attachPoints = new AttachPoint[4];
-        _parent = transform.parent.gameObject;
-
-        SetAttachPoints();
+        _firstParent = transform.parent.gameObject;
+        _currentSuperSquare = _firstParent.GetComponent<SuperSquare>();  
     }
 
+    void Start()
+    {
+        SetAttachPoints();
+        ResetColor();
+        GetComponent<ParticleSystem>().startColor = GetComponent<Renderer>().material.color;
+    }
+
+    // Al fer colisio amb un altre collider, canviem el color a blanc
+    void OnCollisionEnter2D()
+    {
+        GetComponent<Renderer>().material.color = Color.white;
+    }
+
+    // Al sortir d'una colisio, canviem al color original.
+    void OnCollisionExit2D()
+    {
+        ResetColor();
+    }
+    #endregion
+
+    #region Private Methods
+
+    // Fem el calcul dels attach points i els fiquem com a fills per despres guardar-los a _attachPoints
     private void SetAttachPoints()
     {
         _attachPoints[0] = Instantiate(_AttachPointPrefab, new Vector2(transform.position.x - _length, transform.position.y), Quaternion.identity) as AttachPoint;  // Left
@@ -40,17 +66,6 @@ public class Square : MonoBehaviour
         {
             item.gameObject.transform.SetParent(gameObject.transform);
         }
-    }
-
-    public void Detach() // Poder hi ha algun bug per no desactivar els colliders? De moment no hi ha res sospitos
-    {
-        foreach (AttachPoint item in _attachPoints)
-        {
-            item.isBusy = false;
-        }
-        transform.parent = gameObject.transform.root;
-        _parent.SendMessage("Reset",this);
-        ResetColor();
     }
 
     // Retorna el AttachPoint mes proper al point donat
@@ -71,50 +86,100 @@ public class Square : MonoBehaviour
         return closest;
     }
 
-    // Ha de retornar si el attach s'ha pogut fer
-    public void AttachTo(Square target) // TODO: Passar-ho a net
+    // Canviem el color al que correspont per _id
+    private void ResetColor()
     {
-        target.gameObject.GetComponent<BoxCollider2D>().enabled = false;
-        GetComponent<BoxCollider2D>().enabled = false;
+        GetComponent<Renderer>().material.color = TestManager.instance._colors[_id];
+    }
 
+    // Cooldown del magnet
+    private void StartTimer()
+    {
+        _isMagnetEnabled = false;
+        Debug.Log("Magnet disabled");
+        StartCoroutine(WaitActiveTime());
+    }
+
+    private IEnumerator WaitActiveTime()
+    {
+        yield return new WaitForSeconds(_magnetWaitTime);
+        _isMagnetEnabled = true;
+        Debug.Log("Magnet enabled");
+    }
+
+    #endregion
+
+    #region Public Methods
+
+    public void Detach() // Poder hi ha algun bug per no desactivar els colliders? De moment no hi ha res sospitos
+    {
+        foreach (AttachPoint item in _attachPoints)
+        {
+            item.isBusy = false;
+        }
+        transform.parent = gameObject.transform.root;
+        _firstParent.SendMessage("Add", this);
+        ResetColor();
+    }
+
+    public void AttachTo(Square target) // TODO: Passar-ho a net/Millorar
+    {
         ResetColor();
         target.ResetColor();
-
+        
         transform.rotation = target.transform.parent.rotation;
+
         Vector3 distanceBetweenSquares = target.gameObject.transform.position - transform.position;
         Vector3 dir = distanceBetweenSquares.normalized;
 
-        Vector3 initPoint = transform.position + dir * _length;
-        Vector3 finalPoint = target.gameObject.transform.position - dir * _length;
+        Vector3 initPoint = transform.position + dir * _length;                     // AttachPoint tenin en compte la rotacio
+        Vector3 finalPoint = target.gameObject.transform.position - dir * _length;  // AttachPoint tenin en compte la rotacio
 
+        // Posar els AttachPoints ocupats
         AttachPoint a = GetAttachPointClosestTo(initPoint);
         a.isBusy = true;
         AttachPoint b = target.GetAttachPointClosestTo(finalPoint);
         b.isBusy = true;
         transform.position = b.transform.position;
-
-        target.gameObject.GetComponent<BoxCollider2D>().enabled = true;
-        GetComponent<BoxCollider2D>().enabled = true;
     }
 
     public float GetDistance(Square target)
     {
-        return Vector3.Distance(target.transform.position, transform.position);        
+        return Vector3.SqrMagnitude(target.transform.position - transform.position);
     }
 
-    void OnCollisionEnter2D(Collision2D coll)
+    public void Move(float x, float y)
     {
-        GetComponent<Renderer>().material.color = Color.white;
-        //GetComponent<SpriteRenderer>().color = Color.red;   Quan te sprite
-    }
-    void OnCollisionExit2D(Collision2D collisionInfo)
-    {
-        ResetColor();
-        //GetComponent<SpriteRenderer>().color = Color.white; Quan te sprite
+        Vector2 velocityVector = new Vector2(x, y);
+        velocityVector.Normalize();
+        velocityVector.x *= Time.deltaTime * _xSpeed;
+        velocityVector.y *= Time.deltaTime * _ySpeed;
+        _currentSuperSquare.MovementInput(this, velocityVector);
     }
 
-    private void ResetColor()
+    public void UseMagnet()
     {
-        GetComponent<Renderer>().material.color = _color;
+        if (_isMagnetEnabled)
+        {
+            _currentSuperSquare.MagnetInput(this);
+            StartTimer();
+        }
     }
+
+    public void KillThisSquare(Vector2 collisionNormal, float pushForce)//TODO: passar-li la normal a pare i moure formació abans de rejuntar
+    {
+        _currentSuperSquare.Remove(this);
+        _currentSuperSquare.PushFormation(-collisionNormal, pushForce);
+        _currentSuperSquare.SendMessage("OnDeathChild");
+
+        Debug.Log("I'm being killed");
+
+        Destroy(gameObject);
+    }
+
+    public void SetSuperSquare(SuperSquare parent)
+    {
+        _currentSuperSquare = parent;
+    }
+    #endregion
 }
