@@ -213,8 +213,6 @@ public class SuperSquare : PooledObject
 
         _rb.velocity = Vector2.zero;//parem la formació per assegurar-nos que les forces sempre fan l'efect desitjat
 
-        List<Square> keys = new List<Square>(_inputsFromchildren.Keys);
-
         foreach (KeyValuePair<Square, Vector2> entry in _inputsFromchildren)
         {
             if (entry.Key == null)
