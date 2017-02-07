@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
-public class SuperSquare : MonoBehaviour {
-       
+public class SuperSquare : PooledObject
+{       
     private int _id;                            // Test Input
 
     [SerializeField]
@@ -37,6 +37,8 @@ public class SuperSquare : MonoBehaviour {
     }
 
     public Vector2 velo;
+    public int childrenDic;
+    public int childrenLis;
 
     #region Unity Methods
     void Awake()
@@ -57,6 +59,8 @@ public class SuperSquare : MonoBehaviour {
     {
         Move();
         velo = _rb.velocity;
+        childrenDic = _inputsFromchildren.Count;
+        childrenLis = _children.Count;
     }
     #endregion
 
@@ -148,13 +152,16 @@ public class SuperSquare : MonoBehaviour {
         foreach (Square item in _children.ToArray())
         {
             item.Detach();
-            _children.Remove(item);
-            //_inputsFromchildren.Remove(item);     // Implicit
+            Remove(item);
         }
 
-        if(IsEmpty())
+        if (IsEmpty())
+        {
             Collider.enabled = false;
+            //ReturnToPool();
+        }
 
+        _rb.velocity = Vector2.zero;
        // Explosion(requestingSquarePosition);
     }
 
@@ -185,50 +192,16 @@ public class SuperSquare : MonoBehaviour {
     public void Remove(Square target)
     {       
         _children.Remove(target);
-        if(IsEmpty())
-            Collider.enabled = false;
-        //_inputsFromchildren.Remove(target);               // Implicit alhora de posarlo com a child            
+        _inputsFromchildren.Remove(target);
+
+        if (IsEmpty())
+            Collider.enabled = false;        
     }
 
     public bool IsEmpty()
     {
         return _children.Count == 0;
-    }
-
-    // <<<<<<<<<<<<<< - Una prova de SearchSuperSquareToAttach però sense pillar el square que crida la funció
-    /*
-    public void AttachOthers(Square notToAttach)
-    {
-        Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, 3, _layerMaskToSearch);
-
-        foreach (var item in found)
-        {
-            if (item.GetComponentInChildren<Square>() && item.GetComponentInChildren<Square>() != notToAttach)
-            {
-                if (!item.CompareTag(tag)) // TODO: canviar el tag per /nom/etc
-                {
-                    SuperSquare target = item.GetComponent<SuperSquare>();//TODO: Fer més general per poder enganxar-se a altres coses
-                    target.GetComponent<BoxCollider2D>().enabled = false;
-
-                    while (!target.IsEmpty())
-                    {
-                        // Search the child most nearby.
-                        Square[] closestPair = GetClosestPairOfSquares(target);
-
-                        // Set free the target square
-                        target.Remove(closestPair[0]);
-
-                        // Attach
-                        closestPair[0].AttachTo(closestPair[1]);
-
-                        // Set new parent
-                        Add(closestPair[0]);
-                    }
-                }
-            }
-        }
-    }
-    */
+    }   
     #endregion
 
     #region Input Related
@@ -253,21 +226,19 @@ public class SuperSquare : MonoBehaviour {
     private void Move()//Once per frame
     {
         //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
-
         int numberOfChildren = _children.Count;
 
         if (numberOfChildren < 1) { return; }
 
-        List<Square> keys = new List<Square>(_inputsFromchildren.Keys);
-        foreach (Square square in keys)
+        foreach (KeyValuePair<Square, Vector2> entry in _inputsFromchildren)
         {
-            if (square == null)
+            if (entry.Key == null)
             {
-                _inputsFromchildren.Remove(square);
+                _inputsFromchildren.Remove(entry.Key);
             }
             else
             {
-                _rb.AddForceAtPosition(_inputsFromchildren[square] / numberOfChildren, square.transform.position, ForceMode2D.Impulse);
+                _rb.AddForceAtPosition(_inputsFromchildren[entry.Key] / numberOfChildren, entry.Key.transform.position, ForceMode2D.Impulse);
             }
         }
     }    

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MoveUp : MonoBehaviour {
+public class MoveUp : PooledObject {
 
     public Vector2 velocity;
     Rigidbody2D rb;
@@ -12,15 +12,10 @@ public class MoveUp : MonoBehaviour {
         GetComponent<Renderer>().material.color = Color.gray;
     }
 
-	// Use this for initialization
-	void Start () {
-        Destroy(gameObject,10);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    void OnEnable()
+    {
+        Invoke("ReturnToPool", 10);
+    }
 
     void FixedUpdate()
     {

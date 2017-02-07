@@ -3,29 +3,38 @@ using System.Collections;
 
 public class Spawner : MonoBehaviour {
 
-    public GameObject _obvs;
-    public float _waitTimebetweenSpawns = 1f;
+    public MoveUp _obvs;
+    public float _timebetweenSpawns = 1f;
+    private float _timeSinceLastSpawn;
 
-	// Use this for initialization
-	void Start () {
-        InvokeRepeating("StartTimer", 2.0f,0.3f);
-    }
-	
-	// Update is called once per frame
-	void Update () {
-	    
-	}
-
-    // Cooldown del magnet
-    private void StartTimer()
+    void FixedUpdate()
     {
-        Instantiate(_obvs, new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f), Quaternion.identity);
-        //StartCoroutine(WaitActiveTime());
+        _timeSinceLastSpawn += Time.deltaTime;
+        if (_timeSinceLastSpawn >= _timebetweenSpawns)
+        {
+            _timeSinceLastSpawn -= _timebetweenSpawns;
+            SpawnStuff();
+        }
     }
 
-    private IEnumerator WaitActiveTime()
+    void SpawnStuff()
     {
-        Instantiate(_obvs, new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f), Quaternion.identity);
-        yield return new WaitForSeconds(_waitTimebetweenSpawns);
+
+        //Instantiate(_obvs, new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f), Quaternion.identity);
+
+        //GameObject prefab = stuffPrefabs[Random.Range(0, stuffPrefabs.Length)];
+        MoveUp spawn = _obvs.GetPooledInstance<MoveUp>();
+        spawn.transform.position = new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f);
+         /*spawn.transform.localPosition = transform.position;
+         spawn.transform.localScale = Vector3.one * scale.RandomInRange;
+         spawn.transform.localRotation = Random.rotation;
+
+         spawn.Body.velocity = transform.up * velocity +
+             Random.onUnitSphere * randomVelocity.RandomInRange;
+         spawn.Body.angularVelocity =
+             Random.onUnitSphere * angularVelocity.RandomInRange;
+
+         spawn.SetMaterial(stuffMaterial);*/
     }
 }
+

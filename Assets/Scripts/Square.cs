@@ -6,8 +6,8 @@ public class Square : MonoBehaviour
 {
     public AttachPoint _AttachPointPrefab;
     public float _length = 1f;    
-    public float _xSpeed = 7.1f;
-    public float _ySpeed = 3.8f;
+    public float _xForce = 7.1f;
+    public float _yForce = 3.8f;
     public float _magnetWaitTime = 1.5f;
 
     private AttachPoint[] _attachPoints;
@@ -150,11 +150,11 @@ public class Square : MonoBehaviour
 
     public void Move(float x, float y)
     {
-        Vector2 velocityVector = new Vector2(x, y);
-        velocityVector.Normalize();
-        velocityVector.x *= Time.deltaTime * _xSpeed;
-        velocityVector.y *= Time.deltaTime * _ySpeed;
-        _currentSuperSquare.MovementInput(this, velocityVector);
+        Vector2 forceVector = new Vector2(x, y);
+        forceVector.Normalize();
+        forceVector.x *= Time.deltaTime * _xForce;
+        forceVector.y *= Time.deltaTime * _yForce;
+        _currentSuperSquare.MovementInput(this, forceVector);
     }
 
     public void UseMagnet()
