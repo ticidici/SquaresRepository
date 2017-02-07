@@ -166,21 +166,14 @@ public class Square : MonoBehaviour
         }
     }
 
-    //<<<<<<<<<< - Mil proves aquí
-    public void KillThisSquare()
+    public void KillThisSquare(Vector2 collisionNormal, float pushForce)//TODO: passar-li la normal a pare i moure formació abans de rejuntar
     {
         _currentSuperSquare.Remove(this);
-
+        _currentSuperSquare.PushFormation(-collisionNormal, pushForce);
         _currentSuperSquare.SendMessage("OnDeathChild");
 
         Debug.Log("I'm being killed");
 
-        Destroy(gameObject);
-    }
-
-    public IEnumerator Explode()
-    {
-        yield return new WaitForSeconds(0.03f);//TODO: Fer una animació d'explosió de veritat
         Destroy(gameObject);
     }
 

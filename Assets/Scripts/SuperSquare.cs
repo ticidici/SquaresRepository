@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
@@ -141,8 +142,7 @@ public class SuperSquare : PooledObject
     }
 
     // Detach de tots els fills. Es fa una explosio en la posicio de requestingSquare
-    //<<<<<< - ara és públic, per poder-lo cridar desde square
-    public void DetachAllChildren(/*Vector3 requestingSquarePosition*/)//<<<<<<<< - Molaria fer-ho més modular per poder decidir si hi ha o no explosió, o explosió en altres sentits, per exemple
+    private void DetachAllChildren(/*Vector3 requestingSquarePosition*/)//<<<<<<<< - Molaria fer-ho més modular per poder decidir si hi ha o no explosió, o explosió en altres sentits, per exemple
     {
         // No cal fer Detach si nomes tenim 1 fill.
         if (_children.Count < 2)
@@ -169,7 +169,7 @@ public class SuperSquare : PooledObject
 
     #region Public Methods
 
-    // Add target to the children List and set him this as a parent.
+    // Add target to the children List and set this as his parent.
     public void Add(Square target)
     {
         if (target == null)     // Excepcio/Chivato w/e
@@ -201,7 +201,31 @@ public class SuperSquare : PooledObject
     public bool IsEmpty()
     {
         return _children.Count == 0;
-    }   
+    }
+
+    public void PushFormation(Vector2 pushDirection, float pushForce)
+    {
+        Debug.Log("direction = " + pushDirection + "     force = " + pushForce);
+
+        int numberOfChildren = _children.Count;
+
+        if (numberOfChildren < 1) { return; }
+
+        _rb.velocity = Vector2.zero;//parem la formació per assegurar-nos que les forces sempre fan l'efect desitjat
+
+        List<Square> keys = new List<Square>(_inputsFromchildren.Keys);
+        foreach (Square square in keys)
+        {
+            if (square == null)
+            {
+                _inputsFromchildren.Remove(square);
+            }
+            else
+            {
+                _rb.AddForceAtPosition(pushDirection * pushForce / numberOfChildren, square.transform.position, ForceMode2D.Impulse);
+            }
+        }
+    }
     #endregion
 
     #region Input Related
@@ -222,7 +246,6 @@ public class SuperSquare : PooledObject
         }
     }
 
-    // Versio Nico. La molongui
     private void Move()//Once per frame
     {
         //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
@@ -274,9 +297,21 @@ public class SuperSquare : PooledObject
         if (_children.Count < 2)
             return;
 
+        StartCoroutine(Reattach());
+        /*
         for (int i = 1; i < _children.Count; i++)
         {
             _children[i].AttachTo(_children[0]);
-        }
+        }*/
     }
+
+    private IEnumerator Reattach()
+     {
+         yield return new WaitForSeconds(0.07f);
+
+         for (int i = 1; i < _children.Count; i++)
+         {
+             _children[i].AttachTo(_children[0]);//s'hauria de comprovar un altre cop si estan prou a prop
+         }
+     }
 }
