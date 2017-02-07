@@ -413,11 +413,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d2847f8002ff6d442856a4386dd62359, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &300351623 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1000013611324396, guid: d2847f8002ff6d442856a4386dd62359,
-    type: 2}
-  m_PrefabInternal: {fileID: 1347680007}
 --- !u!1 &325223977
 GameObject:
   m_ObjectHideFlags: 0
@@ -669,7 +664,6 @@ GameObject:
   - 92: {fileID: 1197256792}
   - 124: {fileID: 1197256791}
   - 81: {fileID: 1197256790}
-  - 114: {fileID: 1197256794}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -732,18 +726,6 @@ Camera:
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
   m_StereoMirrorMode: 0
---- !u!114 &1197256794
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1197256789}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61fb67c105be9a542936df7b4570b781, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 300351623}
 --- !u!224 &1197256797
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1244,7 +1226,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 1910618074}
   - 50: {fileID: 1910618075}
-  - 114: {fileID: 1910618076}
   m_Layer: 0
   m_Name: Anchor
   m_TagString: Untagged
@@ -1282,20 +1263,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1910618076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1910618073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e557899fef3dc04590b37dc12698ec8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _layerMaskToSearch:
-    serializedVersion: 2
-    m_Bits: 256
 --- !u!1 &1933233362
 GameObject:
   m_ObjectHideFlags: 0
@@ -1305,7 +1272,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 1933233363}
   - 50: {fileID: 1933233365}
-  - 114: {fileID: 1933233364}
   m_Layer: 0
   m_Name: Anchor
   m_TagString: Untagged
@@ -1326,20 +1292,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 823775557}
   m_RootOrder: 0
---- !u!114 &1933233364
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1933233362}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e557899fef3dc04590b37dc12698ec8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _layerMaskToSearch:
-    serializedVersion: 2
-    m_Bits: 256
 --- !u!50 &1933233365
 Rigidbody2D:
   serializedVersion: 2
