@@ -6,7 +6,7 @@ public class SquareController : MonoBehaviour {
     public int _playerNumber = 1;
 
     //private Magnet magnet;
-    private Square _squareModel;
+    private IControllable _polygonModel; // Canviar nom
     private string _horizontalAxis = "Horizontal ";
     private string _verticalAxis = "Vertical ";
     private string _magnetButton = "Magnet ";
@@ -14,13 +14,24 @@ public class SquareController : MonoBehaviour {
     void Awake()
     {
         //magnet = GetComponent<Magnet>();
-        _squareModel = GetComponent<Square>();
-        if (!_squareModel) { Debug.LogError("No Square script found!", this); }
+        _polygonModel = GetComponent<IControllable>();
+        if (_polygonModel == null) { Debug.LogError("No IControllable script found!", this); }
     }
 
     void Start()
+    {       
+
+    }
+    
+    void Update()
     {
-        switch (_playerNumber)
+        MovementInputBindings();
+        OtherInputBindings();
+    }
+
+    public void SetPlayerController(int id)
+    {
+        switch (id)
         {
             case 1:
                 _horizontalAxis = string.Concat(_horizontalAxis, "1");
@@ -43,20 +54,13 @@ public class SquareController : MonoBehaviour {
                 _magnetButton = string.Concat(_magnetButton, "4");
                 break;
         }
-
     }
-
-    void Update()
-    {
-        MovementInputBindings();
-        OtherInputBindings();
-    }
-
+    
     private void OtherInputBindings()
     {
         if (Input.GetButtonDown(_magnetButton))
         {
-            _squareModel.UseMagnet();
+            _polygonModel.UseMagnet();
             //Debug.Log("magnet");
         } else if(Input.GetKeyDown(KeyCode.Space))
         {
@@ -69,6 +73,6 @@ public class SquareController : MonoBehaviour {
     {
         float x = Input.GetAxis(_horizontalAxis);
         float y = Input.GetAxis(_verticalAxis);
-        _squareModel.Move(x, y);
+        _polygonModel.Move(x, y);
     }
 }

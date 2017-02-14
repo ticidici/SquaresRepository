@@ -7,11 +7,9 @@ public class KillerObstacle : MonoBehaviour {
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        Square targetToKill = null;
-        targetToKill = collision.collider.GetComponent<Square>();
+        Polygon targetToKill = null;
+        targetToKill = collision.collider.GetComponent<Polygon>();
         if (targetToKill)
-        {
-            targetToKill.KillThisSquare(collision.contacts[0].normal, pushForce);
-        }
+            targetToKill.CurrentSuperSquare.ExplodeSquare(targetToKill.Id,collision.contacts[0].normal);
     }
 }

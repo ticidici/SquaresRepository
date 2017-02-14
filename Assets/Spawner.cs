@@ -21,8 +21,8 @@ public class Spawner : MonoBehaviour {
     
     void SpawnStuff()
     {
-        MoveUp spawn = _obvs.GetPooledInstance<MoveUp>();
-        spawn.transform.position = new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f);
+        //MoveUp spawn = _obvs.GetPooledInstance<MoveUp>();
+        //spawn.transform.position = new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f);
     }
 }
 

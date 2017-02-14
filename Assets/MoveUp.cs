@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MoveUp : PooledObject {
+public class MoveUp : MonoBehaviour {
 
     public Vector2 velocity;
     Rigidbody2D rb;

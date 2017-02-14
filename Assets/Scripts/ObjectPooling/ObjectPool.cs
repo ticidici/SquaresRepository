@@ -1,52 +1,98 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class ObjectPool : MonoBehaviour {
+namespace MonsterLove.Collections
+{
+	public class ObjectPool<T>
+	{
+		private List<ObjectPoolContainer<T>> list;
+		private Dictionary<T, ObjectPoolContainer<T>> lookup;
+		private Func<T> factoryFunc;
+		private int lastIndex = 0;
 
-	PooledObject prefab;
+		public ObjectPool(Func<T> factoryFunc, int initialSize)
+		{
+			this.factoryFunc = factoryFunc;
 
-	List<PooledObject> availableObjects = new List<PooledObject>();
+			list = new List<ObjectPoolContainer<T>>(initialSize);
+			lookup = new Dictionary<T, ObjectPoolContainer<T>>(initialSize);
 
-	public static ObjectPool GetPool (PooledObject prefab)
-    {
-		GameObject obj;
-		ObjectPool pool;
-		if (Application.isEditor) {
-			obj = GameObject.Find(prefab.name + " Pool");
-			if (obj) {
-				pool = obj.GetComponent<ObjectPool>();
-				if (pool) {
-					return pool;
-				}
+			Warm(initialSize);
+		}
+
+		private void Warm(int capacity)
+		{
+			for (int i = 0; i < capacity; i++)
+			{
+				CreateConatiner();
 			}
 		}
-		obj = new GameObject(prefab.name + " Pool");
-		DontDestroyOnLoad(obj);
-		pool = obj.AddComponent<ObjectPool>();
-		pool.prefab = prefab;
-		return pool;
-	}
 
-	public PooledObject GetObject ()
-    {
-		PooledObject obj;
-		int lastAvailableIndex = availableObjects.Count - 1;
-		if (lastAvailableIndex >= 0) {
-			obj = availableObjects[lastAvailableIndex];
-			availableObjects.RemoveAt(lastAvailableIndex);
-			obj.gameObject.SetActive(true);
+		private ObjectPoolContainer<T> CreateConatiner()
+		{
+			var container = new ObjectPoolContainer<T>();
+			container.Item = factoryFunc();
+			list.Add(container);
+			return container;
 		}
-		else {
-			obj = Instantiate<PooledObject>(prefab);
-			obj.transform.SetParent(transform, false);
-			obj.Pool = this;
-		}
-		return obj;
-	}
 
-	public void AddObject (PooledObject obj)
-    {
-		obj.gameObject.SetActive(false);
-		availableObjects.Add(obj);
+		public T GetItem()
+		{
+			ObjectPoolContainer<T> container = null;
+			for (int i = 0; i < list.Count; i++)
+			{
+				lastIndex++;
+				if (lastIndex > list.Count - 1) lastIndex = 0;
+				
+				if (list[lastIndex].Used)
+				{
+					continue;
+				}
+				else
+				{
+					container = list[lastIndex];
+					break;
+				}
+			}
+
+			if (container == null)
+			{
+				container = CreateConatiner();
+			}
+
+			container.Consume();
+			lookup.Add(container.Item, container);
+			return container.Item;
+		}
+
+		public void ReleaseItem(object item)
+		{
+			ReleaseItem((T) item);
+		}
+
+		public void ReleaseItem(T item)
+		{
+			if (lookup.ContainsKey(item))
+			{
+				var container = lookup[item];
+				container.Release();
+				lookup.Remove(item);
+			}
+			else
+			{
+				Debug.LogWarning("This object pool does not contain the item provided: " + item);
+			}
+		}
+
+		public int Count
+		{
+			get { return list.Count; }
+		}
+
+		public int CountUsedItems
+		{
+			get { return lookup.Count; }
+		}
 	}
 }

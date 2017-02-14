@@ -9,4 +9,13 @@ public static class Rigidbody2DExtension
         float wearoff = 1 - (dir.magnitude / explosionRadius);
         body.AddForce(dir.normalized * explosionForce * wearoff);
     }
+
+    public static void LookAt(this Rigidbody2D body, Vector3 targetPosition)
+    {        
+        float AngleRad = Mathf.Atan2(targetPosition.y - body.position.y, targetPosition.x - body.position.x);
+        // Get Angle in Degrees
+        float AngleDeg = Mathf.Rad2Deg * AngleRad - 90;
+        // Rotate Object
+        body.MoveRotation(AngleDeg);
+    }
 }
