@@ -6,29 +6,21 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
 public class SuperPolygon : MonoBehaviour
 {
-    private static int ID_COUNT = 0;
-
     [SerializeField]
     private LayerMask _layerMaskToSearch; // TODO: Investigar mes pq no calgi posarla manualment ja que el this ja te la layer ficada
     private List<Polygon> _shape;
 
     private Rigidbody2D _rb;
-    //private BoxCollider2D _collider;
-
-    // Getter/Setter per Test
-    public int Id { get; private set; }
 
     #region Unity Methods
     void Awake()
     {
         _shape = new List<Polygon>();
         _rb = GetComponent<Rigidbody2D>();
-        //_collider = GetComponent<BoxCollider2D>();
     }
 
     void Start()
     {
-        Setup();
     }
 
     void Update()
@@ -44,15 +36,6 @@ public class SuperPolygon : MonoBehaviour
     #endregion
 
     #region Private Methods
-    // Temporal, a revisar
-    private void Setup()
-    {
-        Id = ID_COUNT;
-        ID_COUNT++;
-        name = "SuperPolygon " + ID_COUNT;
-        tag = "Player" + ID_COUNT;
-    }
-
     private Polygon GetClosestTo(Polygon target)
     {
         float[] distances = CalculateDistancesTo(target);
@@ -77,7 +60,7 @@ public class SuperPolygon : MonoBehaviour
     {
         Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, 2, _layerMaskToSearch);
 
-        Collider2D[] foundSinThis = found.Where(item => !item.CompareTag(tag)).ToArray();
+        Collider2D[] foundSinThis = found.Where(item => item.gameObject != gameObject).ToArray();
 
         //Debug.Log("We found" + foundSinThis[0].name + " to merge with.");
         if (foundSinThis.Length == 0)
