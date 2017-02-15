@@ -2,250 +2,186 @@
 using UnityEngine;
 using System.Collections;
 
-public class Shape<T> where T : Polygon
+namespace Shape
 {
-    private class Node
+    public class Shape<T> where T : Polygon
     {
-        public Node nextNode, previousNode;
-        public T data;
-    }
-
-    private Node _firstNode;
-    private Node _lastNode;
-    private Node _currentNode;
-
-    private int _size;
-
-    #region Private Methods
-    private void RemoveNode(Node next)
-    {
-        if(next != null)
+        private class Node
         {
-            RemoveNode(next.nextNode);
-            next = null;
+            public Node nextNode, previousNode;
+            public T data;
         }
-    }
 
-    private Node SearchNode(Node next, T data)
-    {
-        if (next == null)
+        private int _size;
+        private Node _sentry;
+        private Node _currentNode;
+
+
+        #region Private Methods
+        private static Node CopyNode() // TODO
+        {
             return null;
-        else
-        {
-            if (next.data.Equals(data))
-                return next;
-            return SearchNode(next.nextNode,data);
         }
-    }
 
-    private void SetCurrentNodeAt(int index)
-    {
-        if (index > _size - 1)
-            throw new ArgumentOutOfRangeException("index");
-
-        int i = 0;
-        _currentNode = _firstNode;
-
-        while (i != index)
+        private static void DeleteNode(Node m, Node s)
         {
-            _currentNode = _currentNode.nextNode;
-            i++;
-        }
-    }
-
-    private Node MinimumDistanceTo(Node target) // Puto bodrio. Rev
-    {
-        /*Node closestNode = _firstNode;
-        float minDistance = Vector3.SqrMagnitude(_firstNode.data.transform.position - target.data.transform.position);
-        closestNode = MinimumDistanceToAux(_firstNode,target, ref minDistance);
-        if (closestNode == null)
-            Debug.Log("El mes proper es null.");
-        return closestNode;*/
-        
-        Node closest = _firstNode;
-        float minDistance = Vector3.SqrMagnitude(closest.data.transform.position - target.data.transform.position);
-
-        for (int i = 1; i < _size; i++)
-        {
-            SetCurrentNodeAt(i);
-            float distance = Vector3.SqrMagnitude(_currentNode.data.transform.position - target.data.transform.position);
-            if (distance < minDistance)
+            if (m != s)
             {
-                minDistance = distance;
-                closest = _currentNode;
+                DeleteNode(m.nextNode, s);
+            }
+            m = null;
+        }
+
+        private Node SearchNode(Node next, T data)
+        {
+            if (next == null)
+                return null;
+            else
+            {
+                if (next.data.Equals(data))
+                    return next;
+                return SearchNode(next.nextNode, data);
             }
         }
-        return closest;
-    }
-    #endregion
+        #endregion
 
-    #region Constructors
-    public Shape()
-    {
-        _size = 0;
-        _firstNode = null;
-        _lastNode = null;
-        _currentNode = null;
-    }
-    #endregion
+        #region Constructors
+        public Shape()
+        {
+            _size = 0;
+            _sentry = new Node();
+            _sentry.nextNode = _sentry;
+            _sentry.previousNode = _sentry;
+            _currentNode = _sentry;
+        }
 
-    #region Public Methods
-    public void Add(T newData) // Attach
-    {
-        Node aux = new Node();
-        aux.data = newData;
-        aux.nextNode = _currentNode;
+        public Shape(Shape<T> original) // TODO
+        {
+            _size = original._size;
+            Node aux = CopyNode();
+        }
+        #endregion
 
-        // Fer el attach a un membre exitent
-        if(_size != 0)
+        #region Operators
+        // Assign =
+        #endregion
+
+        #region Modifiers
+        public void Add(T data)
         {
-            Node closestNode = MinimumDistanceTo(aux);
-            aux.data.AttachTo(closestNode.data);
-        }
-        
-        // Afergirlo a l'estructura
-        if (_size == 0)
-        {
-            aux.previousNode = null;
-            _firstNode = aux;
-            _lastNode = aux;
-        }
-        else if(_currentNode == null)
-        {
-            aux.previousNode = _lastNode;
-            _lastNode.nextNode = aux;
-            _lastNode = aux;
-        } else if(_currentNode == _firstNode)
-        {
-            aux.previousNode = null;
-            _currentNode.previousNode = aux;
-            _firstNode = aux;
-        }
-        else
-        {
+            Node aux = new Node();
+            aux.data = data;
+            aux.nextNode = _currentNode;
             aux.previousNode = _currentNode.previousNode;
             _currentNode.previousNode.nextNode = aux;
-            _currentNode.previousNode = aux;
+            _size++;
         }
 
-        _size++;
-    }
-
-    public void Remove(T data)
-    {
-        _currentNode = SearchNode(_firstNode,data);        
-
-        /*if (_currentNode == null)
-            Debug.Log("NULL");
-        else Debug.Log("NOT NULL");*/
-
-        //_currentNode.data.Detach();
-
-        if (_size == 1)
+        public void Remove(T data)
         {
-            _firstNode = null;
-            _lastNode = null;
-        }
-        else if (_currentNode == _firstNode)
-        {
-            _firstNode = _currentNode.nextNode;
-            _firstNode.previousNode = null;
-        }
-        else if (_currentNode == _lastNode)
-        {
-            _lastNode = _currentNode.previousNode;
-            _lastNode.nextNode = null;
-        }
-        else
-        {
+            _currentNode = SearchNode(_sentry.nextNode, data);
+            Node aux = _currentNode;
             _currentNode.previousNode.nextNode = _currentNode.nextNode;
             _currentNode.nextNode.previousNode = _currentNode.previousNode;
+            _currentNode = _currentNode.nextNode;
+            aux = null;
+            _size--;
         }
 
-        _currentNode = _currentNode.nextNode;
-        _size--;
-    }
-
-    public void Clear()
-    {
-        RemoveNode(_firstNode);
-        _size = 0;
-        _firstNode = null;
-        _lastNode = null;
-        _currentNode = null;
-    }
-
-    public int Count // Millorar
-    {
-        get { return _size; }        
-    }  
-
-    public bool Contains(T data)
-    {
-        _currentNode = SearchNode(_firstNode, data);
-
-        if (_currentNode == null)
-            return false;
-        else return true;
-    }
-
-    public bool IsEmpty()
-    {
-        return _size == 0;
-    }
-    
-    public T FindById(int id) // Possible eliminacio
-    {
-        return SearchNodeId(_firstNode, id);
-    }
-
-    private T SearchNodeId(Node next, int id)
-    {
-        if (next == null)
-            return null;
-        else
+        public void Clear()
         {
-            if(next.data.Id.Equals(id))
-            {
-                return next.data;
-            }
-            return SearchNodeId(next.nextNode,id);
+            DeleteNode(_sentry.nextNode, _sentry);
+            _size = 0;
+            _sentry = new Node();
+            _sentry.nextNode = _sentry;
+            _sentry.previousNode = _sentry;
+            _currentNode = _sentry;
         }
-    }
-    #endregion
 
-    #region Interface Methods
-    public IEnumerator GetEnumerator()
-    {
-        for (int i = 0; i < _size; i++)
+        public void Merge() // TODO. Concat
         {
-            SetCurrentNodeAt(i);
-            yield return _currentNode.data;
+
         }
-    }
-    #endregion
+        #endregion
 
-    #region Indexer
-    public T this[int i]
-    {
-        get
+        #region Consultants
+        public bool IsEmpty()
         {
-            try
-            {
-                SetCurrentNodeAt(i);                
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                Debug.LogException(e);
-                return default(T);
-            }
+            return _size == 0;
+        }
+
+        public int Count
+        {
+            get { return _size; }
+        }
+        #endregion
+
+        #region To Iterate
+        public T GetCurrent()
+        {
             return _currentNode.data;
         }
-        set
+
+        public void SetCurrent(T data)
         {
-            SetCurrentNodeAt(i);
-            _currentNode.data = value;
+            _currentNode.data = data;
         }
+
+        public void Start()
+        {
+            _currentNode = _sentry.nextNode;
+        }
+
+        public void End()
+        {
+            _currentNode = _sentry;
+        }
+
+        public void Next()
+        {
+            _currentNode = _currentNode.nextNode;
+        }
+
+        public void Previous()
+        {
+            _currentNode = _currentNode.previousNode;
+        }
+
+        public bool IsAllRight()
+        {
+            return _currentNode == _sentry;
+        }
+
+        public bool IsFirst()
+        {
+            return _currentNode == _sentry.nextNode;
+        }
+        #endregion
+
+        #region Interface Methods
+        private void SetCurrentNodeAt(int index)
+        {
+            if (index > _size - 1)
+                throw new ArgumentOutOfRangeException("index");
+
+            int i = 0;
+            _currentNode = _sentry.nextNode;
+
+            while (i != index)
+            {
+                _currentNode = _currentNode.nextNode;
+                i++;
+            }
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            for (int i = 0; i < _size; i++)
+            {
+                SetCurrentNodeAt(i);
+                yield return _currentNode.data;
+            }
+        }
+        #endregion
     }
-    #endregion
 }

@@ -31,7 +31,7 @@ public class Square : Polygon, IControllable
         CurrentSuperSquare.Add(this);
 
         SetAttachPoints();
-        //ResetColor();
+        ResetColor();
         //GetComponent<ParticleSystem>().enableEmission = false;
         //GetComponent<ParticleSystem>().startColor = GetComponent<Renderer>().material.color;    
     }
@@ -79,6 +79,12 @@ public class Square : Polygon, IControllable
         CurrentSuperSquare = PoolManager.SpawnObject(_superPolygonPrefab, transform.position, Quaternion.identity).GetComponent<SuperPolygon>();
         CurrentSuperSquare.Add(this);
         //ResetColor();
+    }
+
+    public override void Kill() // TODO
+    {
+        base.Detach();
+        Destroy(gameObject);
     }
 
     protected override void SetAttachPoints()

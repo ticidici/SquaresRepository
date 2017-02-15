@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
 public class SuperPolygon : MonoBehaviour
@@ -9,7 +10,7 @@ public class SuperPolygon : MonoBehaviour
 
     [SerializeField]
     private LayerMask _layerMaskToSearch; // TODO: Investigar mes pq no calgi posarla manualment ja que el this ja te la layer ficada
-    private Shape<Polygon> _shape;
+    private List<Polygon> _shape;
 
     private Rigidbody2D _rb;
     //private BoxCollider2D _collider;
@@ -20,7 +21,7 @@ public class SuperPolygon : MonoBehaviour
     #region Unity Methods
     void Awake()
     {
-        _shape = new Shape<Polygon>();
+        _shape = new List<Polygon>();
         _rb = GetComponent<Rigidbody2D>();
         //_collider = GetComponent<BoxCollider2D>();
     }
@@ -43,7 +44,6 @@ public class SuperPolygon : MonoBehaviour
     #endregion
 
     #region Private Methods
-
     // Temporal, a revisar
     private void Setup()
     {
@@ -53,10 +53,27 @@ public class SuperPolygon : MonoBehaviour
         tag = "Player" + ID_COUNT;
     }
 
+    private Polygon GetClosestTo(Polygon target)
+    {
+        float[] distances = CalculateDistancesTo(target);
+        int index = Array.IndexOf(distances, distances.Min());
+        return _shape[index];
+    }
+
+    private float[] CalculateDistancesTo(Polygon target)
+    {
+        float[] distances = new float[_shape.Count];
+
+        for (int i = 0; i < _shape.Count; i++)
+            distances[i] = _shape[i].DistanceTo(target);
+
+        return distances;
+    }
+
     // TODO: Fer que agafi el mes proper. Ara agafa el primer de larray found que no sigui this.
     // depen del tag per fer diferencia, aixo millor passar-ho a la propia Id.
     // Cerca SuperSquares a un radi 2u. Fa Merge.
-    private void SearchSuperFormToMerge()
+    private void SearchSuperFormToMerge() // Search Closest SuperPolygon // TODO
     {
         Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, 2, _layerMaskToSearch);
 
@@ -72,36 +89,6 @@ public class SuperPolygon : MonoBehaviour
         Remove(closestPair[1]);
         foundSinThis[0].GetComponent<SuperSquare>().Add(closestPair[1]);*/
     }
-    
-    // Retornem el parell de Squares amb menor distancia amb target
-    // Index 0: es el square del supersquare que vol fer attach
-    // Index 1: es l'altre square a que li faran attach
-    /*private Square[] GetClosestPairOfSquares(SuperSquare target) // Tot n x n
-    {
-        float minDistance = target._childrens_test[0].DistanceTo(_childrens_test[0]);
-        Square[] squarePair = new Square[2] { target._childrens_test[0], _childrens_test[0] };
-
-        int length = _childrens_test.Count;
-        int targetLength = target._childrens_test.Count;
-
-        for (int i = 0; i < targetLength; i++)
-        {
-            Square targetSquare = target._childrens_test[i];
-            for (int j = 0; j < length; j++)
-            {
-                Square square = _childrens_test[j];
-                float distance = square.DistanceTo(targetSquare);
-
-                if (minDistance > distance)
-                {
-                    minDistance = distance;
-                    squarePair[0] = targetSquare;
-                    squarePair[1] = square;
-                }
-            }
-        }
-        return squarePair;
-    }*/
     #endregion
 
     #region Public Methods
@@ -109,26 +96,39 @@ public class SuperPolygon : MonoBehaviour
     {
         if (target == null)
             return;
-        else if(IsEmpty())
+        else if (IsEmpty())
             target.transform.parent = transform;
+        else
+        {
+            Polygon closest = GetClosestTo(target);
+            target.AttachTo(closest);
+        }
         _shape.Add(target);
     }
     
     public void Merge(SuperPolygon target)
     {
-        //Debug.Log(target.name + " will merge to " + name);
-        int total = target._shape.Count;
-        for (int i = 0; i < total; i++)
-            Add(target._shape[i]);
-
+        foreach (Polygon current in target._shape)
+        {
+            Add(current);
+        }
         target._shape.Clear();
         PoolManager.ReleaseObject(target.gameObject);
     }
 
-    public void Remove(Polygon target)
+    public void RemovePolygon(Polygon target)
     {
-        //target.Detach();
-        _shape.Remove(target);        
+        _shape.Remove(target);
+        target.Detach();
+
+        if (IsEmpty())
+            PoolManager.ReleaseObject(this.gameObject);
+    }
+
+    public void DestroyPolygon(Polygon target)
+    {
+        _shape.Remove(target);
+        target.Kill();
 
         if (IsEmpty())
             PoolManager.ReleaseObject(this.gameObject);
@@ -139,11 +139,11 @@ public class SuperPolygon : MonoBehaviour
         if (_shape.Count < 2)
             return;
 
-        while(!_shape.IsEmpty())
+        foreach (Polygon current in _shape)
         {
-            _shape[0].Detach();
-            _shape.Remove(_shape[0]);
+            current.Detach();
         }
+        _shape.Clear();
         PoolManager.ReleaseObject(this.gameObject);
     }
 
@@ -235,19 +235,16 @@ public void PushFormation(float pushForce)
 
     #region WIP
     // Explocio en la posicio del fill que mor. Aqui fa que pogui rotar
-    public void ExplodeSquare(int id, Vector2 dirForceExplosion)
+    public void ExplodeSquare(int id, Vector2 dirForceExplosion) // TODO: Kill
     {
-        Polygon squareToKill = _shape.FindById(id);//_children.SingleOrDefault(item => item.Id == id);
+        Polygon squareToKill = _shape.SingleOrDefault(item => item.Id == id);
         squareToKill.GetComponent<Renderer>().material.color = Color.red;
         if (squareToKill)
         { 
             Vector2 position = squareToKill.transform.position;
-            Remove(squareToKill);
-            //squareToKill.Kill();
-            Destroy(squareToKill.gameObject);
+            DestroyPolygon(squareToKill);
 
             DetachAll();
-
             //PullTo(gameObject);
 
             // Tots els fills han de quedar encarant el mes proxims // TODODDODOODODO

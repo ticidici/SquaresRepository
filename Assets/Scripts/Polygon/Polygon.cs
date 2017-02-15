@@ -68,6 +68,8 @@ public abstract class Polygon : MonoBehaviour, IAttachable
         transform.parent = transform.parent.parent;
     }
 
+    public abstract void Kill();
+
     public float DistanceTo(Polygon target)
     {
         return Vector3.SqrMagnitude(transform.position - target.transform.position);
@@ -76,9 +78,9 @@ public abstract class Polygon : MonoBehaviour, IAttachable
 
     #region WIP
     // Canviem el color al que correspont per _id
-    private void ResetColor()
+    protected void ResetColor()
     {
-        //GetComponent<Renderer>().material.color = TestManager.instance._colors[Id];
+        GetComponent<Renderer>().material.color = TestManager.instance._colors[Id%4];
     }
 
     #endregion
