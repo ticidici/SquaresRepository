@@ -4,6 +4,8 @@ using System.Collections;
 public class MoveUp : MonoBehaviour {
 
     public Vector2 velocity;
+    public bool destroyObject = true;
+
     Rigidbody2D rb;
 
     void Awake()
@@ -14,7 +16,10 @@ public class MoveUp : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        Destroy(gameObject,10);
+        if (destroyObject)
+        {
+            Destroy(gameObject, 10);
+        }
 	}
 	
 	// Update is called once per frame
