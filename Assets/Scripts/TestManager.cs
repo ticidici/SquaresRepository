@@ -15,7 +15,7 @@ public class TestManager : MonoBehaviour {
     {
         SpawnPoint aux = Instantiate(Resources.Load("SpawnPoint", typeof(SpawnPoint)) as SpawnPoint, Vector3.zero, Quaternion.identity) as SpawnPoint;
         aux.transform.parent = transform;
-        _spawnPoints.Add(aux);
+        _spawnPoints.Add(aux); 
     }
 
     public void RemoveLast()
@@ -39,7 +39,7 @@ public class TestManager : MonoBehaviour {
         // Destroy SpawnPoint
         foreach (SpawnPoint item in _spawnPoints)
         {
-            //item.gameObject.SetActive(false);
+            item.gameObject.SetActive(false);
         }
     }
 	

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class SpawnPoint : MonoBehaviour {
 
-    private int _size = 1;
+    //private int _size = 1;
 
     void OnDrawGizmos()
     {

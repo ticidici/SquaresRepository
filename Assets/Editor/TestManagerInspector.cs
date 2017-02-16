@@ -10,7 +10,6 @@ public class TestManagerInspector : Editor {
     void Awake()
     {
         t = (TestManager)target;
-        Debug.Log("MEH");
     }
 
     public override void OnInspectorGUI()
@@ -37,5 +36,12 @@ public class TestManagerInspector : Editor {
             EditorUtility.SetDirty(t);
             Debug.Log("Delete SpawnPoint");
         }
+
+        GUILayout.BeginHorizontal("box");
+        if (GUILayout.Button(new GUIContent("MOTIVATE!", "Motivate!"), GUILayout.Height(80)))
+        {
+            Debug.LogWarning("You are being motivated!!!");
+        }
+        GUILayout.EndHorizontal();
     }
 }
