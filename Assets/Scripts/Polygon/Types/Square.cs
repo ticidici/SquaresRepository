@@ -32,8 +32,13 @@ public class Square : Polygon, IControllable
 
         SetAttachPoints();
         ResetColor();
-        //GetComponent<ParticleSystem>().enableEmission = false;
-        //GetComponent<ParticleSystem>().startColor = GetComponent<Renderer>().material.color;    
+        
+        ParticleSystem ps = GetComponent<ParticleSystem>();
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        Gradient grad = new Gradient();
+        grad.SetKeys(new GradientColorKey[] { new GradientColorKey(GetComponent<Renderer>().material.color, 0.0f), new GradientColorKey(GetComponent<Renderer>().material.color, 1.0f) }, new GradientAlphaKey[] { new GradientAlphaKey(1.0f, .17f), new GradientAlphaKey(0.0f, 1.0f) });
+        col.color = grad;
     }
 
     // Update is called once per frame
