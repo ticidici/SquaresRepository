@@ -36,11 +36,29 @@ public class SuperPolygon : MonoBehaviour
     #endregion
 
     #region Private Methods
-    private Polygon GetClosestTo(Polygon target)
+    private Polygon GetClosestTo(Polygon target) 
     {
         float[] distances = CalculateDistancesTo(target);
         int index = Array.IndexOf(distances, distances.Min());
         return _shape[index];
+    }
+
+    private Collider2D ClosestCollider(Collider2D[] array) 
+    {
+        int index = 0;
+        float minDistance = Vector3.Distance(transform.position, array[index].transform.position);
+        Collider2D closest = array[index];
+
+        for (int i = 1; i < array.Length; i++)
+        {
+            float distance = Vector3.Distance(transform.position, array[i].transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closest = array[i];
+            }
+        }
+        return closest;
     }
 
     private float[] CalculateDistancesTo(Polygon target)
@@ -56,21 +74,23 @@ public class SuperPolygon : MonoBehaviour
     // TODO: Fer que agafi el mes proper. Ara agafa el primer de larray found que no sigui this.
     // depen del tag per fer diferencia, aixo millor passar-ho a la propia Id.
     // Cerca SuperSquares a un radi 2u. Fa Merge.
-    private void SearchSuperFormToMerge() // Search Closest SuperPolygon // TODO
+    private void SearchSuperPolygonToMerge()
     {
+        // Cerquem els Super proxims en un radi de 2u. TODO: El radi depen del Polygon que fa l'accio
+        // Aixo fa que el radi i la posicio venen determinats pel Polygon.
         Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, 2, _layerMaskToSearch);
 
-        Collider2D[] foundSinThis = found.Where(item => item.gameObject != gameObject).ToArray();
+        // De l'array d'elements trovat, eliminar el this
+        Collider2D[] foundWithoutThis = found.Where(item => item.gameObject != gameObject).ToArray();
 
-        //Debug.Log("We found" + foundSinThis[0].name + " to merge with.");
-        if (foundSinThis.Length == 0)
+        if (foundWithoutThis.Length == 0)
             return;
 
-        foundSinThis[0].GetComponent<SuperPolygon>().Merge(this);
-        /*
-        Square[] closestPair = GetClosestPairOfSquares(foundSinThis[0].GetComponent<SuperSquare>());
-        Remove(closestPair[1]);
-        foundSinThis[0].GetComponent<SuperSquare>().Add(closestPair[1]);*/
+        // Cerca el que es mes proxim
+        Collider2D closest = ClosestCollider(foundWithoutThis);
+
+        // Fer el Merge sobre el mes proxim
+        closest.GetComponent<SuperPolygon>().Merge(this);
     }
     #endregion
 
@@ -144,7 +164,7 @@ public class SuperPolygon : MonoBehaviour
         if (_shape.Count < 2)
         {
             Debug.Log("Attach");
-            SearchSuperFormToMerge();
+            SearchSuperPolygonToMerge();
         }
         else
         {

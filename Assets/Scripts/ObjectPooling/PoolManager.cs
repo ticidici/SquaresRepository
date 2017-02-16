@@ -52,7 +52,7 @@ public class PoolManager : Singleton<PoolManager>
 			WarmPool(prefab, 1);
 		}
 
-		var pool = prefabLookup[prefab];
+        var pool = prefabLookup[prefab];
 
 		var clone = pool.GetItem();
 		clone.transform.position = position;
@@ -120,5 +120,3 @@ public class PoolManager : Singleton<PoolManager>
 
 	#endregion
 }
-
-
