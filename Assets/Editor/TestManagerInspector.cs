@@ -15,7 +15,6 @@ public class TestManagerInspector : Editor {
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("_squarePolygon"));
         EditorList.Show(serializedObject.FindProperty("_colors"), EditorListOption.Buttons | EditorListOption.ListLabel);
         EditorList.Show(serializedObject.FindProperty("_spawnPoints"), EditorListOption.ListLabel);
         serializedObject.ApplyModifiedProperties();
