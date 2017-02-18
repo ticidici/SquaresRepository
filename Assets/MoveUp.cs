@@ -3,8 +3,9 @@ using System.Collections;
 
 public class MoveUp : MonoBehaviour {
 
-    public Vector2 velocity;
-    public bool destroyObject = true;
+    public Vector2 _velocity;
+    public bool _killObjectOnTime = true;
+    public float _timeBeforeKilling = 10;
 
     Rigidbody2D rb;
 
@@ -14,22 +15,17 @@ public class MoveUp : MonoBehaviour {
         GetComponent<Renderer>().material.color = Color.gray;
     }
 
-	// Use this for initialization
-	void Start () {
-        if (destroyObject)
+    void OnEnable()
+    {
+        if (_killObjectOnTime)
         {
-            Destroy(gameObject, 10);
+            Invoke("ReturnToPool", _timeBeforeKilling);
         }
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    }
 
     void FixedUpdate()
     {
-        rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + _velocity * Time.fixedDeltaTime);
         rb.MoveRotation(rb.rotation + 50 * Time.fixedDeltaTime);
     }
 }

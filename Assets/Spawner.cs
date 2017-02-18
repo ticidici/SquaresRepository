@@ -3,21 +3,26 @@ using System.Collections;
 
 public class Spawner : MonoBehaviour {
 
-    public GameObject _obvs;
-    public float _waitTimebetweenSpawns = 1f;
+    public MoveUp _obvs;
 
-    private GameObject _backgroundSquares;
+    [Range(0.05f,1f)]
+    public float _timebetweenSpawns = 1f;
+    private float _timeSinceLastSpawn;
 
-	// Use this for initialization
-	void Start () {
-        _backgroundSquares = new GameObject("Test Background");
-        InvokeRepeating("StartTimer", 2.0f,0.3f);
-    }
-
-    // Cooldown del magnet
-    private void StartTimer()
+    void FixedUpdate()
     {
-        GameObject backgroundSquare = Instantiate(_obvs, new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f), Quaternion.identity) as GameObject;
-        backgroundSquare.transform.SetParent(_backgroundSquares.transform);
+        _timeSinceLastSpawn += Time.deltaTime;
+        if (_timeSinceLastSpawn >= _timebetweenSpawns)
+        {
+            _timeSinceLastSpawn -= _timebetweenSpawns;
+            SpawnStuff();
+        }
+    }
+    
+    void SpawnStuff()
+    {
+        //MoveUp spawn = _obvs.GetPooledInstance<MoveUp>();
+        //spawn.transform.position = new Vector3(Random.Range(-9, 9), transform.position.y - 25, 0.5f);
     }
 }
+
