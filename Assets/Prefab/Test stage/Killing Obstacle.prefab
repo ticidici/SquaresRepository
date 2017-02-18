@@ -20,10 +20,8 @@ GameObject:
   m_Component:
   - 4: {fileID: 4000013715303506}
   - 61: {fileID: 61000012226527284}
-  - 50: {fileID: 50000012312706746}
   - 114: {fileID: 114000010424330034}
   - 212: {fileID: 212000014208031258}
-  - 114: {fileID: 114000013156040546}
   m_Layer: 0
   m_Name: Killing Obstacle
   m_TagString: Untagged
@@ -44,23 +42,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
---- !u!50 &50000012312706746
-Rigidbody2D:
-  serializedVersion: 2
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000011349503156}
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_IsKinematic: 1
-  m_Interpolate: 1
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
 --- !u!61 &61000012226527284
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -87,19 +68,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pushForce: 6
---- !u!114 &114000013156040546
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000011349503156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d96d8503868cec7499619fddc33bd2d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  velocity: {x: 0, y: 4.9}
-  destroyObject: 0
 --- !u!212 &212000014208031258
 SpriteRenderer:
   m_ObjectHideFlags: 1
