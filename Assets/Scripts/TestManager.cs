@@ -30,7 +30,7 @@ public class TestManager : MonoBehaviour {
 
     void Awake()
     {
-        Cursor.visible = false;
+        //Cursor.visible = false;
 
         if (instance == null)
             instance = this;

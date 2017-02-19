@@ -26,13 +26,11 @@ public class SuperPolygon : MonoBehaviour
 
     void Update()
     {
-        //CheckDistances();
     }
 
     void FixedUpdate()
     {
         Move();
-        //PullToUpdate();
     }
     #endregion
 
@@ -86,12 +84,14 @@ public class SuperPolygon : MonoBehaviour
 
         if (foundWithoutThis.Length == 0)
             return;
+        else if (_shape.Count == 1)
+        {
+            // Cerca el que es mes proxim
+            Collider2D closest = ClosestCollider(foundWithoutThis);
 
-        // Cerca el que es mes proxim
-        Collider2D closest = ClosestCollider(foundWithoutThis);
-
-        // Fer el Merge sobre el mes proxim
-        closest.GetComponent<SuperPolygon>().Merge(this);
+            // Fer el Merge sobre el mes proxim
+            closest.GetComponent<SuperPolygon>().Merge(this);
+        }
     }
     #endregion
 
@@ -101,7 +101,12 @@ public class SuperPolygon : MonoBehaviour
         if (target == null)
             return;
         else if (IsEmpty())
+        {
+            transform.rotation = target.transform.rotation;
+            target.CurrentSuperSquare = this;
             target.transform.parent = transform;
+            target.transform.localRotation = Quaternion.identity;
+        }
         else
         {
             Polygon closest = GetClosestTo(target);
@@ -203,8 +208,8 @@ public class SuperPolygon : MonoBehaviour
     private void Explosion(Vector3 explosionPos/*, Vector2 dirForceExplosion*/)   // Test
     {
         float radius = 50.0f;
-        float power = 200.0f;
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, 2, _layerMaskToSearch);
+        float power = 250.0f;
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, 3, _layerMaskToSearch);
         foreach (Collider2D hit in colliders)
         {
             Rigidbody2D rb = hit.GetComponent<Rigidbody2D>();
@@ -240,7 +245,7 @@ public void PushFormation(float pushForce)
     #endregion
 
     #region WIP
-    // Explocio en la posicio del fill que mor. Aqui fa que pogui rotar
+    // El reattach, encara li queda per afinar i retocar pero ja esta aqui.
     public void ExplodeSquare(int id, Vector2 dirForceExplosion) // TODO: Kill
     {
         Polygon squareToKill = _shape.SingleOrDefault(item => item.Id == id);
@@ -258,44 +263,43 @@ public void PushFormation(float pushForce)
                 if(i != 0 )                
                     _shape[i].CurrentSuperSquare.PullTo(_shape[0]);
             }
+
+            Explosion(transform.position);
+
             _shape.Clear();
             PoolManager.ReleaseObject(this.gameObject);
         }
     }
 
     // Test per al reatach despres duna perdua
-    private Vector3 direction;
-    private bool isPullingTo = false;
-    private bool token = false;
-    private Polygon toFollow;
-
     public void PullTo(Polygon target)
     {
         // Mirem cap al centre de l'explosio
-        //aux[i]._rb.LookAt(aux[0].transform.position);
-        isPullingTo = true;
-        toFollow = target;
-      StartCoroutine(PullToUpdate());
-        
+        //_rb.LookAt(target.transform.position);
+        StartCoroutine(PullToUpdate(target));
     }
 
-    private IEnumerator PullToUpdate()
+    private IEnumerator PullToUpdate(Polygon toFollow)
     {
         // Afegim atraccio
+        Vector3 direction;
+        bool isPullingTo = true;
+
         while (isPullingTo)
         {
             direction = (toFollow.transform.position - transform.position);
             direction.Normalize();
             _rb.LookAt(toFollow.transform.position);
-            _rb.AddForce(direction * 5);
+            _rb.AddForce(direction * 2); // TODO: Fer atribut el 2
             yield return null;
-            if (Vector3.SqrMagnitude(transform.position - toFollow.transform.position) < 1.2f)
+            if (Vector3.SqrMagnitude(transform.position - toFollow.transform.position) < 1.1f)
                 isPullingTo = false;
         }
-
         toFollow.CurrentSuperSquare.Merge(this);
     }
 
+
+    // Funcio que no te sentit d'existir
     private SuperPolygon[] GetNearbySuperSquares(float radius)
     {
         Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, radius, _layerMaskToSearch);
