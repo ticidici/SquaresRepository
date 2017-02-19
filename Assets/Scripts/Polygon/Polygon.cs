@@ -46,6 +46,12 @@ public abstract class Polygon : MonoBehaviour, IAttachable
         return closest;
     }
 
+    public void AssignSuperPolygon()
+    {
+        CurrentSuperSquare = PoolManager.SpawnObject(_superPolygonPrefab, transform.position, Quaternion.identity).GetComponent<SuperPolygon>();
+        CurrentSuperSquare.Add(this);
+    }
+
     public virtual void AttachTo(Polygon target)
     {
         //if (target == this) Mirar com fer-ho millor

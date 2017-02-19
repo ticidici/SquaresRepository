@@ -81,8 +81,9 @@ public class Square : Polygon, IControllable
     {
         base.Detach();
 
-        CurrentSuperSquare = PoolManager.SpawnObject(_superPolygonPrefab, transform.position, Quaternion.identity).GetComponent<SuperPolygon>();
-        CurrentSuperSquare.Add(this);
+        //CurrentSuperSquare = PoolManager.SpawnObject(_superPolygonPrefab, transform.position, Quaternion.identity).GetComponent<SuperPolygon>();
+        //CurrentSuperSquare.Add(this);
+        //AssignSuperPolygon();
         //ResetColor();
     }
 

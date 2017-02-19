@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
@@ -31,7 +32,7 @@ public class SuperPolygon : MonoBehaviour
     void FixedUpdate()
     {
         Move();
-        PullToUpdate();
+        //PullToUpdate();
     }
     #endregion
 
@@ -123,6 +124,7 @@ public class SuperPolygon : MonoBehaviour
     {
         _shape.Remove(target);
         target.Detach();
+        target.AssignSuperPolygon();
 
         if (IsEmpty())
             PoolManager.ReleaseObject(this.gameObject);
@@ -141,10 +143,11 @@ public class SuperPolygon : MonoBehaviour
     {
         if (_shape.Count < 2)
             return;
-
+        
         foreach (Polygon current in _shape)
         {
             current.Detach();
+            current.AssignSuperPolygon();
         }
         _shape.Clear();
         PoolManager.ReleaseObject(this.gameObject);
@@ -243,22 +246,20 @@ public void PushFormation(float pushForce)
         Polygon squareToKill = _shape.SingleOrDefault(item => item.Id == id);
         squareToKill.GetComponent<Renderer>().material.color = Color.red;
         if (squareToKill)
-        { 
+        {
             Vector2 position = squareToKill.transform.position;
             DestroyPolygon(squareToKill);
 
-            DetachAll();
-            //PullTo(gameObject);
-
-            // Tots els fills han de quedar encarant el mes proxims // TODODDODOODODO
-
-            Explosion(position);
-
-            // Han de aproximarse entre ells
-
-
-            //Explosion(position, -dirForceExplosion);
-            //StartCoroutine(ReOrder());
+            Debug.Log(_shape.Count);
+            for (int i = 0; i < _shape.Count; i++)
+            {
+                _shape[i].Detach();
+                _shape[i].AssignSuperPolygon();
+                if(i != 0 )                
+                    _shape[i].CurrentSuperSquare.PullTo(_shape[0]);
+            }
+            _shape.Clear();
+            PoolManager.ReleaseObject(this.gameObject);
         }
     }
 
@@ -266,65 +267,33 @@ public void PushFormation(float pushForce)
     private Vector3 direction;
     private bool isPullingTo = false;
     private bool token = false;
-    private GameObject toFollow;
-    private SuperPolygon[] cluster; // Substituir per ids de cluster o algo aixi idk, no funcionaria 
+    private Polygon toFollow;
 
-    private void CheckDistances() // FALLA
+    public void PullTo(Polygon target)
     {
-        if (!token || cluster == null)
-            return;
-        Debug.Log("ENTRO!!!!!!!!!!");
-        for (int i = 0; i < cluster.Length; i++)
-        {
-            if (cluster[i] != null && Vector3.SqrMagnitude(cluster[i].transform.position - transform.position) < 3f)
-            {
-                //Merge(cluster[i]);
-                Debug.Log("Attach");
-                cluster[i].isPullingTo = false;
-                cluster[i] = null;
-            }
-        }
+        // Mirem cap al centre de l'explosio
+        //aux[i]._rb.LookAt(aux[0].transform.position);
+        isPullingTo = true;
+        toFollow = target;
+      StartCoroutine(PullToUpdate());
+        
     }
 
-    public void PullTo(GameObject target)
-    {
-        SuperPolygon[] aux = GetNearbySuperSquares(1);
-
-        // Donar token de domini, aques token de domini podria ser el punt intermig entre els SS?
-        aux[0].token = true;
-
-        // Els altres l'han de seguir
-        for (int i = 1; i < aux.Length; i++)
-        {
-            // Mirem cap al centre de l'explosio
-            //aux[i]._rb.LookAt(aux[0].transform.position);
-            aux[i].toFollow = aux[0].gameObject;
-            aux[i].isPullingTo = true;
-        }
-
-        cluster = aux.Where(item => !item.CompareTag(tag)).ToArray();
-
-        for (int i = 0; i < cluster.Length; i++)
-        {
-            Debug.Log(cluster[i].name);
-        }
-
-        Debug.Log(cluster.Length);
-
-        // Despres qui te el token ha de fer el check de distancia en el Update
-        // per tal de fer l'accio d'attach
-    }
-
-    private void PullToUpdate()
+    private IEnumerator PullToUpdate()
     {
         // Afegim atraccio
-        if (isPullingTo)
+        while (isPullingTo)
         {
             direction = (toFollow.transform.position - transform.position);
             direction.Normalize();
             _rb.LookAt(toFollow.transform.position);
-            _rb.AddForce(direction * 4f);
+            _rb.AddForce(direction * 5);
+            yield return null;
+            if (Vector3.SqrMagnitude(transform.position - toFollow.transform.position) < 1.2f)
+                isPullingTo = false;
         }
+
+        toFollow.CurrentSuperSquare.Merge(this);
     }
 
     private SuperPolygon[] GetNearbySuperSquares(float radius)
