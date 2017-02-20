@@ -225,7 +225,6 @@ public class SuperPolygon : MonoBehaviour
             DetachAll();
         }
     }
-
     private void Move()//Once per frame
     {
         //Recorrer diccionario, sumar todo, y luego dividir por número de hijos
@@ -235,8 +234,8 @@ public class SuperPolygon : MonoBehaviour
         
         foreach (Polygon entry in _shape) { 
             IControllable a = (IControllable)entry;
-            if(a != null)
-                _rb.AddForceAtPosition(a.GetForceVector() / numberOfChildren, entry.transform.position, ForceMode2D.Impulse);            
+            if (a != null)
+                _rb.AddForceAtPosition(a.GetForceVector() / numberOfChildren, entry.transform.position, ForceMode2D.Impulse);
         }
     }
     /* ELIMINAR

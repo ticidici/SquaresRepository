@@ -9,8 +9,8 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     public GameObject _superPolygonPrefab;
 
     // Parametres generals
-    public float _xForce = 7.1f;
-    public float _yForce = 3.8f;
+    public float _xForce = 20f;
+    public float _yForce = 16f;
     public float _magnetWaitTime = 1.5f;
 
     public int Id { get; set; }

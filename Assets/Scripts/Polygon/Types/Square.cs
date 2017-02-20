@@ -113,10 +113,11 @@ public class Square : Polygon, IControllable
     {
         if (!IsControllable)
             return;
+        
         forceVector = new Vector2(x, y);
         forceVector.Normalize();
-        forceVector.x *= Time.deltaTime * _xForce;
-        forceVector.y *= Time.deltaTime * _yForce;
+        forceVector.x *= Time.fixedDeltaTime * _xForce;
+        forceVector.y *= Time.fixedDeltaTime * _yForce;
         //CurrentSuperSquare.MovementInput(this, forceVector); Ara es el Super que demana el vector de força
     }
 
