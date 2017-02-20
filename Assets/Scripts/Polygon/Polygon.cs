@@ -46,6 +46,17 @@ public abstract class Polygon : MonoBehaviour, IAttachable
         return closest;
     }
 
+    public bool isLeaf() // Mirar-ho amb mes deteniment
+    {
+        int totalBusy = 0;
+        foreach (AttachPoint item in _attachPoints)
+        {
+            if (item.isBusy)
+                totalBusy++;
+        }
+        return (totalBusy == 1);
+    }
+
     public void AssignSuperPolygon()
     {
         CurrentSuperSquare = PoolManager.SpawnObject(_superPolygonPrefab, transform.position, Quaternion.identity).GetComponent<SuperPolygon>();

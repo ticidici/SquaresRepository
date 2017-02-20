@@ -7,10 +7,10 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
 public class SuperPolygon : MonoBehaviour
 {
-    [SerializeField]
+    public int _radiusForMerge = 5; // tmp, poder va a polygon
+
     private LayerMask _layerMaskToSearch; // TODO: Investigar mes pq no calgi posarla manualment ja que el this ja te la layer ficada
     private List<Polygon> _shape;
-
     private Rigidbody2D _rb;
 
     #region Unity Methods
@@ -18,6 +18,8 @@ public class SuperPolygon : MonoBehaviour
     {
         _shape = new List<Polygon>();
         _rb = GetComponent<Rigidbody2D>();
+
+        _layerMaskToSearch = LayerMask.GetMask("PlayerPolygon");
     }
 
     void Start()
@@ -73,14 +75,14 @@ public class SuperPolygon : MonoBehaviour
     // TODO: Fer que agafi el mes proper. Ara agafa el primer de larray found que no sigui this.
     // depen del tag per fer diferencia, aixo millor passar-ho a la propia Id.
     // Cerca SuperSquares a un radi 2u. Fa Merge.
-    private void SearchSuperPolygonToMerge()
+    private void SearchSuperPolygonToMerge() // REV: les dues primeres linees son una burrada el que costen.
     {
         // Cerquem els Super proxims en un radi de 2u. TODO: El radi depen del Polygon que fa l'accio
         // Aixo fa que el radi i la posicio venen determinats pel Polygon.
-        Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, 2, _layerMaskToSearch);
+        Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, _radiusForMerge, _layerMaskToSearch);
 
         // De l'array d'elements trovat, eliminar el this
-        Collider2D[] foundWithoutThis = found.Where(item => item.gameObject != gameObject).ToArray();
+        Collider2D[] foundWithoutThis = found.Where(item => item.transform.parent.gameObject != gameObject).ToArray();
 
         if (foundWithoutThis.Length == 0)
             return;
@@ -89,8 +91,46 @@ public class SuperPolygon : MonoBehaviour
             // Cerca el que es mes proxim
             Collider2D closest = ClosestCollider(foundWithoutThis);
 
+            //Debug.Log(closest.GetComponent<Polygon>().CurrentSuperSquare.name);
             // Fer el Merge sobre el mes proxim
-            closest.GetComponent<SuperPolygon>().Merge(this);
+            //closest.GetComponent<SuperPolygon>().Merge(this);
+            MergeWithAnimation(closest.GetComponent<Polygon>().CurrentSuperSquare);
+        }
+    }
+
+    private IEnumerator PullToUpdate(SuperPolygon target) // Rev
+    {
+        // Afegim atraccio
+        RaycastHit2D hit;
+        Vector3 direction;
+        bool isPullingTo = true;
+        float rayDistance = 1;
+
+        yield return new WaitForSeconds(0.1f);
+
+        while (isPullingTo)
+        {
+            if (!target.gameObject.activeSelf)
+                isPullingTo = false;
+            else
+            {
+                direction = (target.transform.position - transform.position);
+                direction.Normalize();
+                _rb.LookAt(target.transform.position);
+                _rb.AddForce(direction * 2); // TODO: Fer atribut el 2
+                yield return null;
+                Debug.DrawRay(transform.position, Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z) * Vector2.up /*direction*/ * rayDistance, Color.white);
+                hit = Physics2D.Raycast(transform.position, Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z) * Vector2.up/*direction*/, rayDistance, _layerMaskToSearch);
+                if (hit.collider != null)
+                {
+                    //Debug.Log(target.gameObject + "  " +  hit.collider.transform.parent.gameObject);
+                    if (target.gameObject == hit.collider.transform.parent.gameObject)
+                    {
+                        target.Merge(this);
+                        isPullingTo = false;
+                    }
+                }
+            }
         }
     }
     #endregion
@@ -98,7 +138,7 @@ public class SuperPolygon : MonoBehaviour
     #region Public Methods
     public void Add(Polygon target)
     {
-        if (target == null)
+        if (target == null) // o te una distancia molt gran
             return;
         else if (IsEmpty())
         {
@@ -107,7 +147,7 @@ public class SuperPolygon : MonoBehaviour
             target.transform.parent = transform;
             target.transform.localRotation = Quaternion.identity;
         }
-        else
+        else // Aqui es donde debe estar la animacion a la hora de hacer attach!
         {
             Polygon closest = GetClosestTo(target);
             target.AttachTo(closest);
@@ -123,6 +163,11 @@ public class SuperPolygon : MonoBehaviour
         }
         target._shape.Clear();
         PoolManager.ReleaseObject(target.gameObject);
+    }
+
+    public void MergeWithAnimation(SuperPolygon target)
+    {
+        StartCoroutine(PullToUpdate(target));
     }
 
     public void RemovePolygon(Polygon target)
@@ -171,7 +216,7 @@ public class SuperPolygon : MonoBehaviour
         //Debug.Log(name + " " + _shape.Count);
         if (_shape.Count < 2)
         {
-            Debug.Log("Attach");
+            //Debug.Log("Attach");
             SearchSuperPolygonToMerge();
         }
         else
@@ -209,7 +254,7 @@ public class SuperPolygon : MonoBehaviour
     {
         float radius = 50.0f;
         float power = 250.0f;
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, 3, _layerMaskToSearch);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(explosionPos, 3, LayerMask.GetMask("Players"));
         foreach (Collider2D hit in colliders)
         {
             Rigidbody2D rb = hit.GetComponent<Rigidbody2D>();
@@ -252,52 +297,35 @@ public void PushFormation(float pushForce)
         squareToKill.GetComponent<Renderer>().material.color = Color.red;
         if (squareToKill)
         {
-            Vector2 position = squareToKill.transform.position;
-            DestroyPolygon(squareToKill);
+            //if (squareToKill.isLeaf())
+            // {
+            //   Debug.Log("Extrem");
+            Vector3 position = squareToKill.transform.position;
+                DestroyPolygon(squareToKill);
+             //   return;
+           // }
 
-            Debug.Log(_shape.Count);
+            // Si tenim fills, els separem, fem explosio i merge
             for (int i = 0; i < _shape.Count; i++)
             {
                 _shape[i].Detach();
                 _shape[i].AssignSuperPolygon();
-                if(i != 0 )                
-                    _shape[i].CurrentSuperSquare.PullTo(_shape[0]);
             }
 
-            Explosion(transform.position);
+            Explosion(position);
 
-            _shape.Clear();
-            PoolManager.ReleaseObject(this.gameObject);
+            for (int i = 1; i < _shape.Count; i++)
+            {
+                _shape[i].CurrentSuperSquare.MergeWithAnimation(_shape[0].CurrentSuperSquare); // En vez de pull es merge
+            }
+
+            if (_shape.Count != 0)
+            {
+                _shape.Clear();
+                PoolManager.ReleaseObject(this.gameObject);
+            }
         }
     }
-
-    // Test per al reatach despres duna perdua
-    public void PullTo(Polygon target)
-    {
-        // Mirem cap al centre de l'explosio
-        //_rb.LookAt(target.transform.position);
-        StartCoroutine(PullToUpdate(target));
-    }
-
-    private IEnumerator PullToUpdate(Polygon toFollow)
-    {
-        // Afegim atraccio
-        Vector3 direction;
-        bool isPullingTo = true;
-
-        while (isPullingTo)
-        {
-            direction = (toFollow.transform.position - transform.position);
-            direction.Normalize();
-            _rb.LookAt(toFollow.transform.position);
-            _rb.AddForce(direction * 2); // TODO: Fer atribut el 2
-            yield return null;
-            if (Vector3.SqrMagnitude(transform.position - toFollow.transform.position) < 1.1f)
-                isPullingTo = false;
-        }
-        toFollow.CurrentSuperSquare.Merge(this);
-    }
-
 
     // Funcio que no te sentit d'existir
     private SuperPolygon[] GetNearbySuperSquares(float radius)

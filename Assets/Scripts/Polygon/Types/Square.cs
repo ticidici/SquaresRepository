@@ -6,7 +6,6 @@ using System.Collections;
 
 public class Square : Polygon, IControllable
 {
-
     private SquareController _controller;
     public bool IsControllable { get; set; }
     private bool _isMagnetEnabled = true;
@@ -16,10 +15,12 @@ public class Square : Polygon, IControllable
         IsControllable = true;
         _attachPoints = new AttachPoint[4];
         _controller = GetComponent<SquareController>();
+        gameObject.layer = LayerMask.NameToLayer("PlayerPolygon");
     }
 
 	// Use this for initialization
 	void Start () {
+        
         Id = ID_COUNT;
         name = "Square " + Id;
         ID_COUNT++;
@@ -143,9 +144,10 @@ public class Square : Polygon, IControllable
         StartCoroutine(WaitActiveTime());
     }
 
+    WaitForSeconds wait = new WaitForSeconds(1.5f); // base._magnetWaitTime
     private IEnumerator WaitActiveTime()
     {
-        yield return new WaitForSeconds(_magnetWaitTime);
+        yield return wait;
         _isMagnetEnabled = true;
         //Debug.Log("Magnet enabled");
     }
