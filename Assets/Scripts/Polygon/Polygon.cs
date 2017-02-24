@@ -9,8 +9,8 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     public GameObject _superPolygonPrefab;
 
     // Parametres generals
-    public float _xForce = 7.1f;
-    public float _yForce = 3.8f;
+    public float _xForce = 20f;
+    public float _yForce = 16f;
     public float _magnetWaitTime = 1.5f;
 
     public int Id { get; set; }
@@ -18,7 +18,8 @@ public abstract class Polygon : MonoBehaviour, IAttachable
 
     protected static int ID_COUNT = 0;
     protected float _length = 1f;
-    protected AttachPoint[] _attachPoints;
+    public  AttachPoint[] _attachPoints; // protected
+    public float altitude; // protected
 
     #region Protected Methods
 
@@ -28,7 +29,7 @@ public abstract class Polygon : MonoBehaviour, IAttachable
 
     #region Public Methods
 
-    private AttachPoint GetAttachPointClosestTo(Vector3 point) // Mirar scope per determinar public o private
+    public AttachPoint GetAttachPointClosestTo(Vector3 point) // Mirar scope per determinar public o private
     {
         AttachPoint closest = _attachPoints[0];
 
@@ -46,24 +47,63 @@ public abstract class Polygon : MonoBehaviour, IAttachable
         return closest;
     }
 
+    public bool isLeaf() // Mirar-ho amb mes deteniment
+    {
+        int totalBusy = 0;
+        foreach (AttachPoint item in _attachPoints)
+        {
+            if (item.isBusy)
+                totalBusy++;
+        }
+        return (totalBusy == 1);
+    }
+
+    public void AssignSuperPolygon()
+    {
+        CurrentSuperSquare = PoolManager.SpawnObject(_superPolygonPrefab, transform.position, Quaternion.identity).GetComponent<SuperPolygon>();
+        CurrentSuperSquare.Add(this);
+    }
+
     public virtual void AttachTo(Polygon target)
     {
-        //if (target == this) Mirar com fer-ho millor
-        //return;
-        transform.rotation = target.transform.rotation;
-        AttachPoint aux = target.GetAttachPointClosestTo(transform.position);
-        transform.position = aux.transform.position;
+        AttachPoint myClosestAttachPoint = GetAttachPointClosestTo(target.transform.position);
+        AttachPoint targetClosestAttachPoint = target.GetComponent<Polygon>().GetAttachPointClosestTo(myClosestAttachPoint.transform.position); // Falta veure que no estigui ocupat!!!!
+
         transform.parent = target.transform.parent;
-        aux.isBusy = true;
+
+       // Debug.DrawLine(target.transform.localPosition,  (Quaternion.AngleAxis(targetClosestAttachPoint.angle + target.transform.localEulerAngles.z, Vector3.forward) * (Vector3.right *(altitude+target.altitude))) + target.transform.localPosition , Color.red, 150);
+
+        transform.localPosition = (Quaternion.AngleAxis(targetClosestAttachPoint.angle + target.transform.localEulerAngles.z, Vector3.forward) * (Vector3.right * (altitude + target.altitude))) + target.transform.localPosition;
+
+        //rad = ((Quaternion.AngleAxis(targetClosestAttachPoint.angle + target.transform.localEulerAngles.z, Vector3.forward) * (Vector3.right * (altitude + target.altitude))) + target.transform.localPosition).magnitude;
+        //init = Vector3.zero;
+
+
+
+        float AngleRad = Mathf.Atan2(target.transform.localPosition.y - transform.localPosition.y, target.transform.localPosition.x - transform.localPosition.x);
+        // Get Angle in Degrees
+        float AngleDeg = Mathf.Rad2Deg * AngleRad - myClosestAttachPoint.angle; // si es 180 estan alineats
+       // Debug.Log(Mathf.Rad2Deg * AngleRad);
+        //transform.RotateAround(myClosestAttachPoint.transform.position,Vector3.forward, AngleDeg);
+        transform.localEulerAngles = new Vector3(0, 0, AngleDeg);
+        
+
     }
+    //Vector3 init;
+    //float rad;
+    /*
+    void OnDrawGizmos()
+    {
+        UnityEditor.Handles.DrawWireDisc(init, Vector3.back,rad );
+    }*/
 
     public virtual void Detach()
     {
         // Esto no sera nesecario ya que ira por trigger de los attachPoints
-        foreach (AttachPoint item in _attachPoints)
+        /*foreach (AttachPoint item in _attachPoints)
         {
             item.isBusy = false;
-        }
+        }*/
 
         transform.parent = transform.parent.parent;
     }

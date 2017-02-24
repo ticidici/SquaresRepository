@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-//Attachable passarla a interface , Done
-//Polygon Passar-la a abstracte // No crearem un polygon no especific!
-
-public class Square : Polygon, IControllable
+public class Triangle : Polygon, IControllable
 {
     private SquareController _controller;
     public bool IsControllable { get; set; }
@@ -13,16 +11,17 @@ public class Square : Polygon, IControllable
     void Awake()
     {
         IsControllable = true;
-        _attachPoints = new AttachPoint[4];
+        _attachPoints = new AttachPoint[3];
         _controller = GetComponent<SquareController>();
         gameObject.layer = LayerMask.NameToLayer("PlayerPolygon");
     }
 
-	// Use this for initialization
-	void Start () {
-        altitude = 0.5f;
+    // Use this for initialization
+    void Start()
+    {
+        altitude = 0.2886751345948129f;
         Id = ID_COUNT;
-        name = "Square " + Id;
+        name = "Triangle " + Id;
         ID_COUNT++;
         if (IsControllable)
             _controller.SetPlayerController(ID_COUNT);
@@ -33,13 +32,20 @@ public class Square : Polygon, IControllable
 
         SetAttachPoints();
         ResetColor();
-        
+
         ParticleSystem ps = GetComponent<ParticleSystem>();
         var col = ps.colorOverLifetime;
         col.enabled = true;
         Gradient grad = new Gradient();
         grad.SetKeys(new GradientColorKey[] { new GradientColorKey(GetComponent<Renderer>().material.color, 0.0f), new GradientColorKey(GetComponent<Renderer>().material.color, 1.0f) }, new GradientAlphaKey[] { new GradientAlphaKey(1.0f, .17f), new GradientAlphaKey(0.0f, 1.0f) });
         col.color = grad;
+
+        
+    }
+    // Update is called once per frame
+    void Update()
+    {
+        
     }
 
     public override void AttachTo(Polygon target) // TODO: Passar-ho a net/Millorar
@@ -92,21 +98,28 @@ public class Square : Polygon, IControllable
 
     protected override void SetAttachPoints()
     {
-        _attachPoints[0] = Instantiate(_AttachPointPrefab, new Vector2(transform.position.x - _length/2, transform.position.y), Quaternion.identity) as AttachPoint;  // Left
-        _attachPoints[1] = Instantiate(_AttachPointPrefab, new Vector2(transform.position.x + _length/2, transform.position.y), Quaternion.identity) as AttachPoint;  // Right
-        _attachPoints[2] = Instantiate(_AttachPointPrefab, new Vector2(transform.position.x, transform.position.y + _length/2), Quaternion.identity) as AttachPoint;  // Top
-        _attachPoints[3] = Instantiate(_AttachPointPrefab, new Vector2(transform.position.x, transform.position.y - _length/2), Quaternion.identity) as AttachPoint;  // Bottom
+        
+        _attachPoints[0] = Instantiate(_AttachPointPrefab, Vector2.zero, Quaternion.identity) as AttachPoint;  // Bottom
+        _attachPoints[0].angle = 270;
 
-        _attachPoints[0].angle = 180;
-        _attachPoints[1].angle = 0;
-        _attachPoints[2].angle = 90;
-        _attachPoints[3].angle = 270;
+        _attachPoints[1] = Instantiate(_AttachPointPrefab, Vector2.zero, Quaternion.identity) as AttachPoint;  // Left
+        _attachPoints[1].angle = 150;
 
+        _attachPoints[2] = Instantiate(_AttachPointPrefab, Vector2.zero, Quaternion.identity) as AttachPoint;  // Right
+        _attachPoints[2].angle = 30;
 
         foreach (var item in _attachPoints)
         {
             item.gameObject.transform.SetParent(gameObject.transform);
         }
+
+        Vector2 dir = Vector2.right * altitude;
+
+        _attachPoints[0].transform.localPosition = Quaternion.Euler(0, 0, _attachPoints[0].angle) * dir;
+        _attachPoints[1].transform.localPosition = Quaternion.Euler(0, 0, _attachPoints[1].angle) * dir;
+        _attachPoints[2].transform.localPosition = Quaternion.Euler(0, 0, _attachPoints[2].angle) * dir;
+
+
     }
 
     #region Input Related
@@ -115,7 +128,7 @@ public class Square : Polygon, IControllable
     {
         if (!IsControllable)
             return;
-        
+
         forceVector = new Vector2(x, y);
         forceVector.Normalize();
         forceVector.x *= Time.fixedDeltaTime * _xForce;

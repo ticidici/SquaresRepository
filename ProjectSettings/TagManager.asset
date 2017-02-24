@@ -17,9 +17,10 @@ TagManager:
   - UI
   - 
   - 
-  - 'Players '
+  - Players
   - Walls
   - StageDespawn
+  - PlayerPolygon
   - Square
   - 
   - 

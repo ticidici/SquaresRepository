@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 4000012215212648}
   - 114: {fileID: 114000012625566894}
+  - 114: {fileID: 114000011268824246}
   - 50: {fileID: 50000012556936586}
   - 61: {fileID: 61000010251984456}
   m_Layer: 8
@@ -28,7 +29,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4000012215212648
 Transform:
   m_ObjectHideFlags: 1
@@ -73,6 +74,20 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
+--- !u!114 &114000011268824246
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000012304148098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98c64f3476f733b41a00d8f7782ee2ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _attachPoint: {fileID: 0}
+  toAngle: 0
+  _isActive: 0
 --- !u!114 &114000012625566894
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -84,6 +99,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a8a61af6811c674ea56e4d786f21b6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _layerMaskToSearch:
-    serializedVersion: 2
-    m_Bits: 256
+  _radiusForMerge: 5
+  _forceFactorMerge: 8
+  _delayTime: 0.2

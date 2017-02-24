@@ -30,7 +30,7 @@ public class TestManager : MonoBehaviour {
 
     void Awake()
     {
-        Cursor.visible = false;
+        //Cursor.visible = false;
 
         if (instance == null)
             instance = this;
@@ -51,7 +51,7 @@ public class TestManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	    if(Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();
         }

@@ -20,6 +20,7 @@ public class KillerObstacle : MonoBehaviour {
 
     void OnCollisionEnter2D(Collision2D collision)
     {
+        //Destroy(gameObject);
         Polygon targetToKill = null;
         targetToKill = collision.collider.GetComponent<Polygon>();
         if (targetToKill)

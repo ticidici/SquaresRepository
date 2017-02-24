@@ -19,3 +19,20 @@ public static class Rigidbody2DExtension
         body.MoveRotation(AngleDeg);
     }
 }
+
+
+public static class Utilities
+{
+    public static float AngleArbitraryCord(Vector2 a, Vector2 b, Vector2 origin)
+    {
+        a = a - origin;
+        b = b - origin;
+
+        a.Normalize();
+        b.Normalize();
+
+        float dot = Vector2.Dot(a, b);
+
+        return Mathf.Acos(dot) * Mathf.Rad2Deg;
+    }
+}

@@ -8,6 +8,7 @@ public class AttachPoint : MonoBehaviour
 
     //  Nomes interesa saber si esta ocupar (de moment)
     public bool isBusy = false;
+    public float angle;
 
     void Awake()
     {
@@ -26,4 +27,14 @@ public class AttachPoint : MonoBehaviour
     // On Collider es fica en busy
     // Nomes respon a altres instancies que tinguin la classe shape
     // Aquesta classe pot ser un quadrat, un triangle etc
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        isBusy = true;
+    }
+
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        isBusy = false;
+    }
 }
