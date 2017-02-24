@@ -8,31 +8,50 @@ using System.Collections.Generic;
 public class SuperPolygon : MonoBehaviour
 {
     public int _radiusForMerge = 5; // tmp, poder va a polygon
+    public float _forceFactorMerge = 2;
+    public float _delayTime = 0.2f;
 
     private LayerMask _layerMaskToSearch; // TODO: Investigar mes pq no calgi posarla manualment ja que el this ja te la layer ficada
     private List<Polygon> _shape;
     private Rigidbody2D _rb;
+    private WaitForSeconds _delayTimeToMerge;
+    private LookAt _lookAtScript;
 
     #region Unity Methods
     void Awake()
     {
         _shape = new List<Polygon>();
         _rb = GetComponent<Rigidbody2D>();
+        _lookAtScript = GetComponent<LookAt>();
 
+        _delayTimeToMerge = new WaitForSeconds(_delayTime);
         _layerMaskToSearch = LayerMask.GetMask("PlayerPolygon");
     }
-
-    void Start()
-    {
-    }
-
-    void Update()
-    {
-    }
+    /*
+    if (rotating)
+     {
+         Vector3 to = new Vector3(20, 20, 20);
+         if (Vector3.Distance(transform.eulerAngles, to) > 0.01f)
+         {
+             transform.eulerAngles = Vector3.Lerp(transform.rotation.eulerAngles, to, Time.deltaTime);
+         }
+         else
+         {
+             transform.eulerAngles = to;
+             rotating = false;
+         }
+     }*/
 
     void FixedUpdate()
     {
         Move();
+        if (_rb.rotation > 360)
+            _rb.rotation = _rb.rotation % 360;
+        /*if (_shape.Count > 1)
+        {
+            Debug.Log(_shape[0].transform.rotation.eulerAngles + "    " + _shape[1].transform.rotation.eulerAngles);
+            Debug.Break();
+        }*/
     }
     #endregion
 
@@ -98,15 +117,47 @@ public class SuperPolygon : MonoBehaviour
         }
     }
 
+    // New System Merge
+    private void SearchSuperPolygonToMerge2() // REV: les dues primeres linees son una burrada el que costen.
+    {
+        // Cerquem els Super proxims en un radi de 2u. TODO: El radi depen del Polygon que fa l'accio
+        // Aixo fa que el radi i la posicio venen determinats pel Polygon.
+        Collider2D[] found = Physics2D.OverlapCircleAll(transform.position, _radiusForMerge, _layerMaskToSearch);
+
+        // De l'array d'elements trovat, eliminar el this
+        Collider2D[] foundWithoutThis = found.Where(item => item.transform.parent.gameObject != gameObject).ToArray();
+
+        if (foundWithoutThis.Length == 0)
+            return;
+        else if (_shape.Count == 1) // Constrain pq lo del tamany bla bla bla revisar
+        {
+            // Cerca el que es mes proxim
+            Collider2D closestTarget = ClosestCollider(foundWithoutThis);
+
+            // Fer que apuntem a ell
+            AttachPoint myClosestAttachPoint = _shape[0].GetAttachPointClosestTo(closestTarget.transform.position); // el primer pq aquesta accio nomes la poden fer els supers amb un fill
+            //targetClosestAttachPoint = closestTarget.GetComponent<Polygon>().GetAttachPointClosestTo(myClosestAttachPoint.transform.position);
+
+            //Debug.DrawLine(transform.position, targetClosestAttachPoint.transform.position, Color.yellow);
+            //Debug.DrawLine(transform.position, myClosestAttachPoint.transform.position, Color.yellow);
+
+            _lookAtScript.Setup(closestTarget.GetComponent<Polygon>().CurrentSuperSquare.gameObject, myClosestAttachPoint);
+            _lookAtScript._isActive = true;
+
+            // Anar cap a ell
+            MergeWithAnimation(closestTarget.GetComponent<Polygon>().CurrentSuperSquare);
+
+            // Al fer que el raycast el detecti, agafar vector attachpoint i fer anim
+        }
+    }
+
     private IEnumerator PullToUpdate(SuperPolygon target) // Rev
     {
         // Afegim atraccio
         RaycastHit2D hit;
         Vector3 direction;
         bool isPullingTo = true;
-        float rayDistance = 1;
-
-        yield return new WaitForSeconds(0.1f);
+        float rayDistance = 0.6f;//0.2886751345948129f + 1f;
 
         while (isPullingTo)
         {
@@ -117,15 +168,18 @@ public class SuperPolygon : MonoBehaviour
                 direction = (target.transform.position - transform.position);
                 direction.Normalize();
                 _rb.LookAt(target.transform.position);
-                _rb.AddForce(direction * 2); // TODO: Fer atribut el 2
+                _rb.AddForce(direction * _forceFactorMerge);
                 yield return null;
-                Debug.DrawRay(transform.position, Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z) * Vector2.up /*direction*/ * rayDistance, Color.white);
-                hit = Physics2D.Raycast(transform.position, Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z) * Vector2.up/*direction*/, rayDistance, _layerMaskToSearch);
+                Debug.DrawRay(transform.position, direction * rayDistance, Color.white);
+                hit = Physics2D.Raycast(transform.position, direction, rayDistance, _layerMaskToSearch);
                 if (hit.collider != null)
                 {
                     //Debug.Log(target.gameObject + "  " +  hit.collider.transform.parent.gameObject);
                     if (target.gameObject == hit.collider.transform.parent.gameObject)
                     {
+                        _lookAtScript._isActive = false;
+                        yield return new WaitForFixedUpdate();
+                        yield return _delayTimeToMerge;
                         target.Merge(this);
                         isPullingTo = false;
                     }
@@ -138,7 +192,7 @@ public class SuperPolygon : MonoBehaviour
     #region Public Methods
     public void Add(Polygon target)
     {
-        if (target == null) // o te una distancia molt gran
+        if (target == null)
             return;
         else if (IsEmpty())
         {
@@ -152,6 +206,7 @@ public class SuperPolygon : MonoBehaviour
             Polygon closest = GetClosestTo(target);
             target.AttachTo(closest);
         }
+
         _shape.Add(target);
     }
     
@@ -217,7 +272,7 @@ public class SuperPolygon : MonoBehaviour
         if (_shape.Count < 2)
         {
             //Debug.Log("Attach");
-            SearchSuperPolygonToMerge();
+            SearchSuperPolygonToMerge2();
         }
         else
         {
@@ -313,6 +368,7 @@ public void PushFormation(float pushForce)
 
             Explosion(position);
 
+            
             for (int i = 1; i < _shape.Count; i++)
             {
                 _shape[i].CurrentSuperSquare.MergeWithAnimation(_shape[0].CurrentSuperSquare); // En vez de pull es merge
