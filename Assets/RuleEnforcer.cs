@@ -14,7 +14,7 @@ public class RuleEnforcer : MonoBehaviour {
         
         if (!_isChasing)
         {
-            Collider2D[] squares = Physics2D.OverlapCircleAll(transform.position, _radiusOfAction, 1 << LayerMask.NameToLayer("Square"));
+            Collider2D[] squares = Physics2D.OverlapCircleAll(transform.position, _radiusOfAction, 1 << LayerMask.NameToLayer("PlayerPolygon"));
             if (squares.Length < 1) { return; }
             float distanceToSquare = _radiusOfAction;
             foreach (Collider2D collider in squares)
@@ -24,7 +24,7 @@ public class RuleEnforcer : MonoBehaviour {
                     _lockedPlayer = collider.GetComponent<Square>();
                     distanceToSquare = (collider.transform.position - transform.position).magnitude;
                     _isChasing = true;
-                    Debug.Log("Closest square: " + _lockedPlayer.name);
+                    Debug.Log("Closest polygon: " + _lockedPlayer.name);
                 }
             }
         }
@@ -44,7 +44,7 @@ public class RuleEnforcer : MonoBehaviour {
 
         if ((_lockedPlayer.transform.position - transform.position).magnitude < _radiusOfAction * 1.1)
         {
-            Debug.Log("Chasing closest square: " + _lockedPlayer.name);
+            Debug.Log("Chasing closest polygon: " + _lockedPlayer.name);
             Vector3 directionToSquare = _lockedPlayer.transform.position - transform.position;
             directionToSquare.Normalize();
             transform.Translate(directionToSquare * _speed * Time.deltaTime);

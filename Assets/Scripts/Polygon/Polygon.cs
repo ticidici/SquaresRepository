@@ -16,15 +16,29 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     public int Id { get; set; }
     public SuperPolygon CurrentSuperSquare { get; set; }
 
-    protected static int ID_COUNT = 0;
+    public static int ID_COUNT = 0;//ho he fet public per poder-ho resetejar
     protected float _length = 1f;
     public  AttachPoint[] _attachPoints; // protected
     public float altitude; // protected
+
+    protected GameManager _gameManager;
 
     #region Protected Methods
 
     protected abstract void SetAttachPoints();
 
+    protected void OnEnable()
+    {
+        _gameManager = FindObjectOfType<GameManager>();
+        _gameManager.AddPlayerToGame();//¡¡Pressuposa que tots els polygons són jugadors, canviar si cal!!
+    }
+
+    protected void OnDisable()
+    {
+        _gameManager.PolygonKilled();
+    }
+
+    //TODO Donar punts per temps transcorregut a FixedUpdate per exemple
     #endregion
 
     #region Public Methods
