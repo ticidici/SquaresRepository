@@ -30,12 +30,14 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     protected void OnEnable()
     {
         _gameManager = FindObjectOfType<GameManager>();
-        _gameManager.AddPlayerToGame();//¡¡Pressuposa que tots els polygons són jugadors, canviar si cal!!
+        if (_gameManager != null)
+            _gameManager.AddPlayerToGame();//¡¡Pressuposa que tots els polygons són jugadors, canviar si cal!!
     }
 
     protected void OnDisable()
     {
-        _gameManager.PolygonKilled();
+        if (_gameManager != null)
+            _gameManager.PolygonKilled();
     }
 
     //TODO Donar punts per temps transcorregut a FixedUpdate per exemple

@@ -45,8 +45,8 @@ public class SuperPolygon : MonoBehaviour
     void FixedUpdate()
     {
         Move();
-        if (_rb.rotation > 360)
-            _rb.rotation = _rb.rotation % 360;
+        /*if (_rb.rotation > 360)
+            _rb.rotation = _rb.rotation % 360;*/
         /*if (_shape.Count > 1)
         {
             Debug.Log(_shape[0].transform.rotation.eulerAngles + "    " + _shape[1].transform.rotation.eulerAngles);
@@ -158,7 +158,7 @@ public class SuperPolygon : MonoBehaviour
         Vector3 direction;
         bool isPullingTo = true;
         float rayDistance = 0.6f;//0.2886751345948129f + 1f;
-
+        yield return _delayTimeToMerge;
         while (isPullingTo)
         {
             if (!target.gameObject.activeSelf)

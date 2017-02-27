@@ -118,5 +118,10 @@ public class PoolManager : Singleton<PoolManager>
 		Instance.releaseObject(clone);
 	}
 
+    public static void Clean()
+    {
+        Instance.prefabLookup.Clear();
+        Instance.instanceLookup.Clear();
+    }
 	#endregion
 }

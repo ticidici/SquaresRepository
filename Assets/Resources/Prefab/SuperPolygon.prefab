@@ -100,5 +100,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _radiusForMerge: 5
-  _forceFactorMerge: 8
+  _forceFactorMerge: 5
   _delayTime: 0.2
