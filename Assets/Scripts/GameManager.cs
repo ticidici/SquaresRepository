@@ -24,14 +24,14 @@ public class GameManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
     }
 
-    public void AddPlayerToGame()
+    public void AddPlayerToGame(int id)//TODO Usar esta id para, más tarde darle puntos extra a quien quede último
     {
         _numberOfStartingPlayers += 1;
         _currentNumberOfPlayers = _numberOfStartingPlayers;
         Debug.Log("Number of polygons: " + _numberOfStartingPlayers);
     }
 
-    public void PolygonKilled()
+    public void PolygonKilled(int id)
     {
         _currentNumberOfPlayers -= 1;
         Debug.Log("Number of polygons: " + _currentNumberOfPlayers + " out of " + _numberOfStartingPlayers);

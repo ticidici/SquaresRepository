@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class ResultsScreen : MonoBehaviour {
 
@@ -14,10 +15,7 @@ public class ResultsScreen : MonoBehaviour {
     private int _numberOfPlayers;
 
     void Start () {
-        _playerScores[0] = ScoreManager._player1Score;
-        _playerScores[1] = ScoreManager._player2Score;
-        _playerScores[2] = ScoreManager._player3Score;
-        _playerScores[3] = ScoreManager._player4Score;
+        System.Array.Copy(ScoreManager._scores, _playerScores, 4);
         _numberOfPlayers = GameManager._numberOfStartingPlayers;
         Debug.Log("Results Screen: Number of players: " + _numberOfPlayers);
 
@@ -33,6 +31,7 @@ public class ResultsScreen : MonoBehaviour {
 
     void DrawScoresAndWinner()
     {
+        //Draw Scores
         _player1Text.text = "Player 1: " + _playerScores[0].ToString();
         _player2Text.text = "Player 2: " + _playerScores[1].ToString();
         if (_numberOfPlayers > 2)
@@ -52,15 +51,44 @@ public class ResultsScreen : MonoBehaviour {
             _player4Text.enabled = false;
         }
 
+
+        //Calculate winner or draw
         int highScore = _playerScores[0];
+        int winnerId = 0;
+        List<int> drawIds = new List<int>();
+        bool isDraw = false;
+        drawIds.Add(0);
+
         for (int i = 1; i < _numberOfPlayers; i++)
         {
             if (_playerScores[i] > highScore)
             {
                 highScore = _playerScores[i];
+                winnerId = i;
+                isDraw = false;
+                drawIds.Clear();
+                drawIds.Add(i);
+            }
+            else if(_playerScores[i] == highScore)
+            {
+                isDraw = true;
+                drawIds.Add(i);
             }
         }
 
-        _winnerText.text = highScore.ToString();//TODO Descubrir quien es el ganador
+
+        //Draw final results
+        if (!isDraw)
+        {
+            _winnerText.text = "Winner: Player " + (winnerId + 1).ToString();
+        }
+        else
+        {
+            _winnerText.text = "Draw between players";
+            foreach (int id in drawIds)
+            {
+                _winnerText.text += " " + (id + 1).ToString();
+            }
+        }
     }
 }

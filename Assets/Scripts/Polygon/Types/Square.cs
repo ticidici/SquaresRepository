@@ -19,11 +19,12 @@ public class Square : Polygon, IControllable
     }
 
 	// Use this for initialization
-	void Start () {
+	protected override void Start () {
         altitude = 0.5f;
         Id = ID_COUNT;
         name = "Square " + Id;
         ID_COUNT++;
+        base.Start();//després d'assignar les Id
         if (IsControllable)
             _controller.SetPlayerController(ID_COUNT);
         else _controller.enabled = false;

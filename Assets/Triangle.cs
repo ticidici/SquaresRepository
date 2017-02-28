@@ -17,12 +17,13 @@ public class Triangle : Polygon, IControllable
     }
 
     // Use this for initialization
-    void Start()
+    protected override void Start()
     {
         altitude = 0.2886751345948129f;
         Id = ID_COUNT;
         name = "Triangle " + Id;
         ID_COUNT++;
+        base.Start();
         if (IsControllable)
             _controller.SetPlayerController(ID_COUNT);
         else _controller.enabled = false;
@@ -93,6 +94,7 @@ public class Triangle : Polygon, IControllable
     public override void Kill() // TODO
     {
         base.Detach();
+        base.Kill();
         Destroy(gameObject);
     }
 
