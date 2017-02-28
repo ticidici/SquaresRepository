@@ -87,6 +87,7 @@ public class Square : Polygon, IControllable
     public override void Kill() // TODO
     {
         base.Detach();
+        base.Kill();
         Destroy(gameObject);
     }
 

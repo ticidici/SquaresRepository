@@ -19,7 +19,7 @@ public class ResultsScreen : MonoBehaviour {
         _playerScores[2] = ScoreManager._player3Score;
         _playerScores[3] = ScoreManager._player4Score;
         _numberOfPlayers = GameManager._numberOfStartingPlayers;
-        Debug.Log("Number of players: " + _numberOfPlayers);
+        Debug.Log("Results Screen: Number of players: " + _numberOfPlayers);
 
         //Reset static parameters
         GameManager._numberOfStartingPlayers = 0;

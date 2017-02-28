@@ -27,15 +27,15 @@ public abstract class Polygon : MonoBehaviour, IAttachable
 
     protected abstract void SetAttachPoints();
 
-    protected void OnEnable()
+    protected virtual void OnEnable()
     {
         _gameManager = FindObjectOfType<GameManager>();
         _gameManager.AddPlayerToGame();//¡¡Pressuposa que tots els polygons són jugadors, canviar si cal!!
     }
 
-    protected void OnDisable()
+    protected virtual void FixedUpdate()
     {
-        _gameManager.PolygonKilled();
+        ScoreManager.AddToScore(1, Id);
     }
 
     //TODO Donar punts per temps transcorregut a FixedUpdate per exemple
@@ -122,7 +122,10 @@ public abstract class Polygon : MonoBehaviour, IAttachable
         transform.parent = transform.parent.parent;
     }
 
-    public abstract void Kill();
+    public virtual void Kill() //L'he fet virtual per poder afegir un comportament comú, a OnDisable s'activava també al canviar d'escena
+    {
+        _gameManager.PolygonKilled();
+    }
 
     public float DistanceTo(Polygon target)
     {
