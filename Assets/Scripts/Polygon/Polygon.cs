@@ -30,7 +30,10 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     protected virtual void Start()
     {
         _gameManager = FindObjectOfType<GameManager>();
-        _gameManager.AddPlayerToGame(Id);//¡¡Pressuposa que tots els polygons són jugadors, canviar si cal!!
+        if (_gameManager != null)
+        {
+            _gameManager.AddPlayerToGame(Id);//¡¡Pressuposa que tots els polygons són jugadors, canviar si cal!!
+        }
     }
 
     protected virtual void FixedUpdate()
@@ -123,7 +126,10 @@ public abstract class Polygon : MonoBehaviour, IAttachable
 
     public virtual void Kill() //L'he fet virtual per poder afegir un comportament comú, a OnDisable s'activava també al canviar d'escena
     {
-        _gameManager.PolygonKilled(Id);
+        if (_gameManager != null)
+        {
+            _gameManager.PolygonKilled(Id);
+        }
     }
 
     public float DistanceTo(Polygon target)

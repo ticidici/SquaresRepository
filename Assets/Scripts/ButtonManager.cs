@@ -6,6 +6,7 @@ public class ButtonManager : MonoBehaviour {
 
     public void LoadScene(string sceneName)
     {
+        PoolManager.Clean();
         SceneManager.LoadScene(sceneName);
     }
 
