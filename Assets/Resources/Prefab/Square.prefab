@@ -135,8 +135,8 @@ MonoBehaviour:
     type: 2}
   _superPolygonPrefab: {fileID: 1000012304148098, guid: 0bef624cc0329714a83535f8b556f3db,
     type: 2}
-  _xForce: 15
-  _yForce: 13
+  _xForce: 17
+  _yForce: 16
   _magnetWaitTime: 1.5
   _attachPoints: []
   altitude: 0

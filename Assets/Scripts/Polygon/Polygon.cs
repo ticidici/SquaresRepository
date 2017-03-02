@@ -38,7 +38,7 @@ public abstract class Polygon : MonoBehaviour, IAttachable
 
     protected virtual void FixedUpdate()
     {
-        ScoreManager.AddToScore(1, Id);
+        //ScoreManager.AddToScore(1, Id);
     }
 
     #endregion
@@ -135,6 +135,11 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     public float DistanceTo(Polygon target)
     {
         return Vector3.SqrMagnitude(transform.position - target.transform.position);
+    }
+
+    public void ReceivePoints(int pointsReceived)
+    {
+        ScoreManager.AddToScore(pointsReceived, Id);
     }
     #endregion
 
