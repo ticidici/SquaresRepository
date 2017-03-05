@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour {
     public static int _currentNumberOfPlayers = 0;
     public static GameManager _instance;
 
-    public int _winnerReward = 1500;
+    public int _winnerReward = 500;
 
     private bool _isGameFinished = false;
     private List<int> _currentPlayersIds = new List<int>();
