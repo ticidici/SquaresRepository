@@ -87,7 +87,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 0.25
+  m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -174,8 +174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a8a61af6811c674ea56e4d786f21b6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radiusForMerge: 1
+  _radiusForMerge: 1.5
   _forceFactorMerge: 5
   _delayTime: 0.2
-  collision: {fileID: 8300000, guid: 4bb1ff3d47457d845aeb038c91d96c74, type: 3}
-  attach: {fileID: 8300000, guid: f66ebd9f385e0054b9861e3e840f1e71, type: 3}
+  collision: {fileID: 8300000, guid: 0c5a3731bc3d2da4592e293a038d8020, type: 3}
+  attach: {fileID: 8300000, guid: 61954f082f86ca34cba045e18dfb37fe, type: 3}
