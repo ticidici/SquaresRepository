@@ -17,14 +17,13 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     public SuperPolygon CurrentSuperSquare { get; set; }
 
     public static int ID_COUNT = 0;//ho he fet public per poder-ho resetejar
-    protected float _length = 1f;
-    public  AttachPoint[] _attachPoints; // protected
-    public float altitude; // protected
+    protected float _length = 1f;    
+    protected float altitude;
+    protected AttachPoint[] _attachPoints;
 
     protected GameManager _gameManager;
 
     #region Protected Methods
-
     protected abstract void SetAttachPoints();
 
     protected virtual void Start()
@@ -40,11 +39,9 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     {
         //ScoreManager.AddToScore(1, Id);
     }
-
     #endregion
 
     #region Public Methods
-
     public AttachPoint GetAttachPointClosestTo(Vector3 point) // Mirar scope per determinar public o private
     {
         AttachPoint closest = _attachPoints[0];
@@ -86,45 +83,19 @@ public abstract class Polygon : MonoBehaviour, IAttachable
         AttachPoint targetClosestAttachPoint = target.GetComponent<Polygon>().GetAttachPointClosestTo(myClosestAttachPoint.transform.position); // Falta veure que no estigui ocupat!!!!
 
         transform.parent = target.transform.parent;
-
-       // Debug.DrawLine(target.transform.localPosition,  (Quaternion.AngleAxis(targetClosestAttachPoint.angle + target.transform.localEulerAngles.z, Vector3.forward) * (Vector3.right *(altitude+target.altitude))) + target.transform.localPosition , Color.red, 150);
-
-        transform.localPosition = (Quaternion.AngleAxis(targetClosestAttachPoint.angle + target.transform.localEulerAngles.z, Vector3.forward) * (Vector3.right * (altitude + target.altitude))) + target.transform.localPosition;
-
-        //rad = ((Quaternion.AngleAxis(targetClosestAttachPoint.angle + target.transform.localEulerAngles.z, Vector3.forward) * (Vector3.right * (altitude + target.altitude))) + target.transform.localPosition).magnitude;
-        //init = Vector3.zero;
-
-
+        transform.localPosition = (Quaternion.AngleAxis(targetClosestAttachPoint.angle+target.transform.localEulerAngles.z, Vector3.forward) * (Vector3.right*(altitude+target.altitude))) + target.transform.localPosition;
 
         float AngleRad = Mathf.Atan2(target.transform.localPosition.y - transform.localPosition.y, target.transform.localPosition.x - transform.localPosition.x);
-        // Get Angle in Degrees
-        float AngleDeg = Mathf.Rad2Deg * AngleRad - myClosestAttachPoint.angle; // si es 180 estan alineats
-       // Debug.Log(Mathf.Rad2Deg * AngleRad);
-        //transform.RotateAround(myClosestAttachPoint.transform.position,Vector3.forward, AngleDeg);
+        float AngleDeg = Mathf.Rad2Deg * AngleRad - myClosestAttachPoint.angle;
         transform.localEulerAngles = new Vector3(0, 0, AngleDeg);
-        
-
     }
-    //Vector3 init;
-    //float rad;
-    /*
-    void OnDrawGizmos()
-    {
-        UnityEditor.Handles.DrawWireDisc(init, Vector3.back,rad );
-    }*/
 
     public virtual void Detach()
     {
-        // Esto no sera nesecario ya que ira por trigger de los attachPoints
-        /*foreach (AttachPoint item in _attachPoints)
-        {
-            item.isBusy = false;
-        }*/
-
         transform.parent = transform.parent.parent;
     }
 
-    public virtual void Kill() //L'he fet virtual per poder afegir un comportament comú, a OnDisable s'activava també al canviar d'escena
+    public virtual void Kill()
     {
         if (_gameManager != null)
         {
@@ -149,6 +120,11 @@ public abstract class Polygon : MonoBehaviour, IAttachable
     {
         GetComponent<Renderer>().material.color = TestManager.instance._colors[Id%4];
     }
-
     #endregion
+
+    public abstract void TestFeedBackMagnetDetach();
+
+    public abstract void TestFeedBackMagnetAttach();
+
+    public abstract void TestFeedBackMagnetRDY();
 }

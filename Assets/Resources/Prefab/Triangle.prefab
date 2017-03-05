@@ -82,7 +82,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000011326767140}
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: 4300000, guid: ead4df2ac645b1d479586b0c108e20c4, type: 2}
 --- !u!61 &61000014063240084
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -108,6 +108,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12993318b4ac374ba5c939f1a49af30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _AttachPointPrefab: {fileID: 0}
+  _superPolygonPrefab: {fileID: 0}
+  _xForce: 20
+  _yForce: 16
+  _magnetWaitTime: 1.5
+  forceVector: {x: 0, y: 0}
 --- !u!114 &114000012214252156
 MonoBehaviour:
   m_ObjectHideFlags: 1

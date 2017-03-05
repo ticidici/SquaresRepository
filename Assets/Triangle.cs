@@ -169,5 +169,20 @@ public class Triangle : Polygon, IControllable
         _isMagnetEnabled = true;
         //Debug.Log("Magnet enabled");
     }
+
+    public override void TestFeedBackMagnetDetach()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void TestFeedBackMagnetAttach()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void TestFeedBackMagnetRDY()
+    {
+        throw new NotImplementedException();
+    }
     #endregion
 }

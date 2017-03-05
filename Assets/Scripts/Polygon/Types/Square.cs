@@ -9,6 +9,7 @@ public class Square : Polygon, IControllable
     private SquareController _controller;
     public bool IsControllable { get; set; }
     private bool _isMagnetEnabled = true;
+    public GameObject effect1;
 
     void Awake()
     {
@@ -16,6 +17,7 @@ public class Square : Polygon, IControllable
         _attachPoints = new AttachPoint[4];
         _controller = GetComponent<SquareController>();
         gameObject.layer = LayerMask.NameToLayer("PlayerPolygon");
+        _animator = GetComponent<Animator>();
     }
 
 	// Use this for initialization
@@ -153,8 +155,28 @@ public class Square : Polygon, IControllable
     private IEnumerator WaitActiveTime()
     {
         yield return wait;
+        // Active particle
+
         _isMagnetEnabled = true;
         //Debug.Log("Magnet enabled");
     }
     #endregion
+
+
+    Animator _animator;
+    public override void TestFeedBackMagnetDetach()
+    {
+        _animator.SetTrigger("detach");
+    }
+
+    public override void TestFeedBackMagnetAttach()
+    {
+        _animator.SetTrigger("attach");
+    }
+
+    public override void TestFeedBackMagnetRDY()
+    {
+        //effect1.startRotation3D = transform.parent.transform.rotation.eulerAngles;
+       // effect1.Emit(1);
+    }
 }
