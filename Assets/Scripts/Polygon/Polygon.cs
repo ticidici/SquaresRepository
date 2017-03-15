@@ -97,6 +97,17 @@ public abstract class Polygon : MonoBehaviour, IAttachable
 
     public virtual void Kill()
     {
+        GameObject ps = Resources.Load<GameObject>("ExplosionPolygon");
+        ParticleSystem ps1 = ps.GetComponent<ParticleSystem>();
+        var col = ps1.colorOverLifetime;
+        col.enabled = true;
+        Gradient grad = new Gradient();
+        grad.SetKeys(new GradientColorKey[] { new GradientColorKey(TestManager.instance._colors[Id % 4], 0.0f), new GradientColorKey(TestManager.instance._colors[Id % 4], 1.0f) }, new GradientAlphaKey[] { new GradientAlphaKey(1.0f, .17f), new GradientAlphaKey(0.0f, 1.0f) });
+        col.color = grad;
+        Instantiate(ps, transform.position, Quaternion.identity);
+       
+        Destroy(ps,1f);
+
         if (_gameManager != null)
         {
             _gameManager.PolygonKilled(Id);

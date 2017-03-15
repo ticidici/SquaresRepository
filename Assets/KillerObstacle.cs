@@ -39,6 +39,9 @@ public class KillerObstacle : MonoBehaviour {
         Polygon targetToKill = null;
         targetToKill = collision.collider.GetComponent<Polygon>();
         if (targetToKill)
-            targetToKill.CurrentSuperSquare.ExplodeSquare(targetToKill.Id,collision.contacts[0].normal);
+        {
+            targetToKill.CurrentSuperSquare.ExplodeSquare(targetToKill.Id, collision.contacts[0].normal);
+            CameraShake.ShakeCameraDefault();
+        }
     }
 }

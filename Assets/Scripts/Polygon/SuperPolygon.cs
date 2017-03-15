@@ -291,6 +291,7 @@ public class SuperPolygon : MonoBehaviour
         if (_shape.Count < 2)
         {
             //Debug.Log("Attach");
+            PingRing.Create(transform.position).transform.SetParent(this.gameObject.transform);
             SearchSuperPolygonToMerge2();
         }
         else
