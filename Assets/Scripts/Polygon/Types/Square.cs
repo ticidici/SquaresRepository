@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEngine.UI;
+using UnityEngine;
 using System.Collections;
 
 //Attachable passarla a interface , Done
@@ -91,6 +92,7 @@ public class Square : Polygon, IControllable
     {
         base.Detach();
         base.Kill();
+        CameraShake.ShakeCameraDefault();
         Destroy(gameObject);
     }
 
@@ -148,7 +150,22 @@ public class Square : Polygon, IControllable
     {
         _isMagnetEnabled = false;
         //Debug.Log("Magnet disabled");
-        StartCoroutine(WaitActiveTime());
+        StartCoroutine(Countdown(1.5f));
+    }
+
+    IEnumerator Countdown(float secondsLeft)
+    {
+        Text text = GetComponentInChildren<Text>();
+        text.text = secondsLeft.ToString();
+
+        while (secondsLeft > 0f)
+        {
+            secondsLeft -= Time.deltaTime;
+            text.text = secondsLeft.ToString();
+            yield return null;
+        }
+        text.text = "0.0";
+        _isMagnetEnabled = true;
     }
 
     WaitForSeconds wait = new WaitForSeconds(1.5f); // base._magnetWaitTime
