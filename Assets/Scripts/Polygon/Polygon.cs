@@ -105,8 +105,6 @@ public abstract class Polygon : MonoBehaviour, IAttachable
         grad.SetKeys(new GradientColorKey[] { new GradientColorKey(TestManager.instance._colors[Id % 4], 0.0f), new GradientColorKey(TestManager.instance._colors[Id % 4], 1.0f) }, new GradientAlphaKey[] { new GradientAlphaKey(1.0f, .17f), new GradientAlphaKey(0.0f, 1.0f) });
         col.color = grad;
         Instantiate(ps, transform.position, Quaternion.identity);
-       
-        Destroy(ps,1f);
 
         if (_gameManager != null)
         {
