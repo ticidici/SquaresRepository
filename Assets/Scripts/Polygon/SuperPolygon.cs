@@ -113,10 +113,11 @@ public class SuperPolygon : MonoBehaviour
         {
             SuperPolygon aux = found[i].transform.parent.gameObject.GetComponent<SuperPolygon>();
 
-            if(aux._shape.Count == 1)
+            if(aux._shape.Count == 1 && !aux.MergeState)
             {
                 isSmallThere = true;
-                aux.MergeState = true;
+                //aux.MergeState = true;
+                MergeState = true;
 
                 // Fer que apuntem a la cara mes propera propia
                 AttachPoint targetClosestAttachPoint = aux._shape[0].GetAttachPointClosestTo(transform.position); // el primer pq aquesta accio nomes la poden fer els supers amb un fill
