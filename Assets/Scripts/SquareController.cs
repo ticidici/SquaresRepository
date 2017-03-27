@@ -1,26 +1,21 @@
 ﻿using UnityEngine;
+using InControl;
 
 public class SquareController : MonoBehaviour {
 
     [Range(1, 4)]
     public int _playerNumber = 1;
+    public int _deviceIndex;//no hacer esto, tener una referencia a InputDevice
 
-    //private Magnet magnet;
-    private IControllable _polygonModel; // Canviar nom
+    private IControllable _polygonModel; // Canviar nom (tots sabem que aquest comentari mai es borrarà ni es farà res al respecte)
     private string _horizontalAxis = "Horizontal ";
     private string _verticalAxis = "Vertical ";
     private string _magnetButton = "Magnet ";
 
     void Awake()
     {
-        //magnet = GetComponent<Magnet>();
         _polygonModel = GetComponent<IControllable>();
         if (_polygonModel == null) { Debug.LogError("No IControllable script found!", this); }
-    }
-
-    void Start()
-    {       
-
     }
     
     void Update()
@@ -31,6 +26,7 @@ public class SquareController : MonoBehaviour {
 
     public void SetPlayerController(int id)
     {
+        _playerNumber = id;
         switch (id)
         {
             case 1:
@@ -58,17 +54,25 @@ public class SquareController : MonoBehaviour {
     
     private void OtherInputBindings()
     {
-        if (Input.GetButtonDown(_magnetButton))
+        //if (Input.GetButtonDown(_magnetButton))
+        if(InputManager.Devices[_deviceIndex].Action1)
         {
             _polygonModel.UseMagnet();
-            //Debug.Log("magnet");
         }
     }
 
     private void MovementInputBindings()
     {
-        float x = Input.GetAxis(_horizontalAxis);
-        float y = Input.GetAxis(_verticalAxis);
+        float x = 0;
+        float y = 0;
+        //x = Input.GetAxis(_horizontalAxis);
+        //y = Input.GetAxis(_verticalAxis);
+        x = InputManager.Devices[_deviceIndex].LeftStickX;
+        y = InputManager.Devices[_deviceIndex].LeftStickY;
+ 
+        x = InputManager.ActiveDevice.LeftStickX;
+        y = InputManager.ActiveDevice.LeftStickY;
+
         _polygonModel.Move(x, y);
     }
 }
