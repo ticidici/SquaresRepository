@@ -34,7 +34,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1090732221384240}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.40365413, y: 3.381737, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -51,4 +51,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3120b78ba5bcfe64bb434e66d79c1d21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _previewPolygonPrefab: {fileID: 0}
+  _previewPolygonPrefab: {fileID: 1282359410351582, guid: 61b8aef2ec756234e9f3cd5f8647dfd4,
+    type: 2}

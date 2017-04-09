@@ -22,55 +22,57 @@ public class ControllerAssigner : MonoBehaviour {
     }
 
 	void Update () {
-        InputDevice device = InputManager.ActiveDevice;
-
-        if (device.AnyButton.WasPressed)
-        {  
-            foreach (InputDevice assignedDevice in _assignedDevices)
+        //InputDevice device = InputManager.ActiveDevice;
+        foreach (InputDevice device in InputManager.Devices)
+        {
+            if (device.AnyButton.WasPressed)
             {
-                if (device == assignedDevice)
+                foreach (InputDevice assignedDevice in _assignedDevices)
                 {
-                    int index = _assignedDevices.IndexOf(device);
-                    PreviewPolygon polygon = _previewPolygons[index];
-                    if (device.Action2.WasPressed)
-                    { 
-                        
-                        _colorsToAssign.Add(polygon.ReturnColor());
-                        _previewPolygons.Remove(polygon);
-                        Destroy(polygon.gameObject);
-                        Debug.Log("Removing controller: " + device.Name);
-                        _assignedDevices.Remove(device);
+                    if (device == assignedDevice)
+                    {
+                        int index = _assignedDevices.IndexOf(device);
+                        PreviewPolygon polygon = _previewPolygons[index];
+                        if (device.Action2.WasPressed)
+                        {
+
+                            _colorsToAssign.Add(polygon.ReturnColor());
+                            _previewPolygons.Remove(polygon);
+                            Destroy(polygon.gameObject);
+                            Debug.Log("Removing controller: " + device.Name);
+                            _assignedDevices.Remove(device);
+                            return;
+                        }
+                        if (device.Action3.WasPressed)
+                        {
+                            _colorsToAssign.Add(polygon.ReturnColor());
+                            polygon.AssignColor(GetNewPreviewColor());
+                        }
+                        if (device.Action4.WasPressed)
+                        {
+                            polygon.ChangeShape();
+                        }
+                        Debug.Log("Already assigned device: " + device.Name);
                         return;
                     }
-                    if (device.Action3.WasPressed)
-                    {
-                        _colorsToAssign.Add(polygon.ReturnColor());
-                        polygon.AssignColor(GetNewPreviewColor());
-                    }
-                    if (device.Action4.WasPressed)
-                    {
-                        polygon.ChangeShape();
-                    }
-                    Debug.Log("Already assigned device: " + device.Name);
-                    return;
-                } 
-            }
-            if (device.Action1.WasPressed)
-            {
-                Debug.Log("A button pressed. Adding device: " + device.Name);
-                _assignedDevices.Add(device);
+                }
+                if (device.Action1.WasPressed)
+                {
+                    Debug.Log("A button pressed. Adding device: " + device.Name);
+                    _assignedDevices.Add(device);
 
-                GameObject polygon = Instantiate(_previewPolygonPrefab);
-                PreviewPolygon script = polygon.GetComponent<PreviewPolygon>();
-                script.AssignController(device);
-                script.AssignColor(GetNewPreviewColor());
-                _previewPolygons.Add(script);
+                    GameObject polygon = Instantiate(_previewPolygonPrefab);
+                    PreviewPolygon script = polygon.GetComponent<PreviewPolygon>();
+                    script.AssignController(device);
+                    script.AssignColor(GetNewPreviewColor());
+                    _previewPolygons.Add(script);
+                }
+                else
+                {
+                    Debug.Log("Other button pressed on unassigned device or unknown button");
+                }
             }
-            else
-            {
-                Debug.Log("Other button pressed or unknown button");
-            }
-        }   
+        }  
 	}
 
     public InputDevice GetDevice(int playerId)
